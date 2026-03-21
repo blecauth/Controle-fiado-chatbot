@@ -31,6 +31,7 @@
             --success: #4CAF50;
             --danger: #e53935;
             --warning: #ff9800;
+            --info: #2196F3;
         }
 
         [data-theme="dark"] {
@@ -46,6 +47,7 @@
             --success: #66bb6a;
             --danger: #ef5350;
             --warning: #ffa726;
+            --info: #64b5f6;
         }
 
         * {
@@ -222,46 +224,6 @@
             gap: 10px;
         }
 
-        .setup-pin {
-            background: white;
-            padding: 30px;
-            border-radius: 20px;
-            max-width: 350px;
-            text-align: center;
-        }
-
-        .setup-pin h3 {
-            color: var(--primary);
-            margin-bottom: 15px;
-        }
-
-        .setup-pin p {
-            color: var(--text-secondary);
-            margin-bottom: 20px;
-            font-size: 0.9rem;
-        }
-
-        .setup-btn {
-            width: 100%;
-            padding: 15px;
-            margin: 10px 0;
-            border: none;
-            border-radius: 10px;
-            font-size: 1rem;
-            cursor: pointer;
-        }
-
-        .setup-btn.primary {
-            background: var(--primary);
-            color: white;
-        }
-
-        .setup-btn.secondary {
-            background: transparent;
-            color: var(--text-secondary);
-            border: 2px solid var(--border-color);
-        }
-
         /* Header */
         .header {
             background: rgba(255, 255, 255, 0.1);
@@ -364,7 +326,7 @@
         }
 
         .quick-btn:active {
-            background: rgba(255, 255, 255, 0.3);
+            background: rgba(255,255,255,0.3);
             transform: scale(0.95);
         }
 
@@ -416,6 +378,10 @@
             color: var(--text-secondary);
         }
 
+        .autocomplete-item .balance.positive {
+            color: var(--success);
+        }
+
         .autocomplete-item .balance.negative {
             color: var(--danger);
         }
@@ -452,61 +418,11 @@
             animation: slideIn 0.3s ease-out;
             word-wrap: break-word;
             position: relative;
-            user-select: none;
         }
 
         @keyframes slideIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
-        }
-
-        .message.swiping {
-            transition: none;
-        }
-
-        .message-actions {
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            opacity: 0;
-            transition: opacity 0.2s;
-        }
-
-        .message-actions.show {
-            opacity: 1;
-        }
-
-        .message-actions.left {
-            left: 10px;
-        }
-
-        .message-actions.right {
-            right: 10px;
-        }
-
-        .action-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            cursor: pointer;
-        }
-
-        .action-btn.edit {
-            background: var(--warning);
-            color: white;
-        }
-
-        .action-btn.delete {
-            background: var(--danger);
-            color: white;
         }
 
         .bot-message {
@@ -604,15 +520,14 @@
             margin: 10px 0;
             border-left: 5px solid var(--primary);
             position: relative;
-            overflow: hidden;
         }
 
         [data-theme="dark"] .balance-card {
             background: linear-gradient(135deg, #2d2d44 0%, #1e1e32 100%);
         }
 
-        .balance-card.swiping {
-            transition: none;
+        .balance-card.credit {
+            border-left-color: var(--success);
         }
 
         .balance-header {
@@ -636,6 +551,72 @@
 
         .balance-amount.negative {
             color: var(--danger);
+        }
+
+        .balance-amount.positive {
+            color: var(--success);
+        }
+
+        .credit-badge {
+            display: inline-block;
+            background: var(--success);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            margin-left: 5px;
+        }
+
+        .client-info {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(0,0,0,0.1);
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        [data-theme="dark"] .client-info {
+            border-top-color: rgba(255,255,255,0.1);
+        }
+
+        .client-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .client-action-btn {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            transition: all 0.2s;
+        }
+
+        .client-action-btn.edit {
+            background: var(--info);
+            color: white;
+        }
+
+        .client-action-btn.whatsapp {
+            background: #25D366;
+            color: white;
+        }
+
+        .client-action-btn.delete {
+            background: var(--danger);
+            color: white;
+        }
+
+        .client-action-btn:active {
+            transform: scale(0.95);
+            opacity: 0.8;
         }
 
         .transaction-list {
@@ -706,6 +687,33 @@
             gap: 10px;
         }
 
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 1rem;
+            background: var(--bg-input);
+            color: var(--text-primary);
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus {
+            border-color: var(--primary);
+        }
+
         .command-example {
             background: var(--bg-input);
             padding: 12px;
@@ -726,6 +734,18 @@
             border-radius: 10px;
             font-size: 1rem;
             margin-top: 20px;
+            cursor: pointer;
+        }
+
+        .btn-secondary {
+            width: 100%;
+            padding: 12px;
+            background: transparent;
+            color: var(--text-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 1rem;
+            margin-top: 10px;
             cursor: pointer;
         }
 
@@ -964,10 +984,8 @@
 </head>
 <body>
     <!-- Lock Screen -->
-    <div class="lock-screen" id="lockScreen">
-        <div class="lock-content" id="lockContent">
-            <!-- Conteúdo será inserido via JS -->
-        </div>
+    <div class="lock-screen hidden" id="lockScreen">
+        <div class="lock-content" id="lockContent"></div>
     </div>
 
     <!-- Splash Screen -->
@@ -1019,12 +1037,14 @@
         <div class="chat-container" id="chatContainer">
             <div class="bot-message message">
                 👋 Olá! Sou seu assistente de controle de vendas fiado.<br><br>
+                <strong>Novidades:</strong><br>
+                • 💳 <b>Saldo positivo:</b> Cliente pode ter crédito<br>
+                • ✏️ <b>Editar clientes:</b> Toque no cliente para alterar<br>
+                • 📱 <b>WhatsApp:</b> Envie comprovantes<br><br>
                 <strong>Como usar:</strong><br>
-                • <code>joao adc 50</code> - Adiciona R$ 50,00 para João<br>
-                • <code>maria pg 30</code> - Registra pagamento de R$ 30,00 da Maria<br>
-                • <code>clientes</code> - Ver todos os clientes<br>
-                • <code>resumo</code> - Ver total a receber<br><br>
-                <em style="font-size: 0.9rem; color: #666;">💡 Dica: Deslize mensagens para editar/excluir!</em>
+                • <code>joao adc 50</code> - Adiciona R$ 50,00<br>
+                • <code>maria pg 30</code> - Registra pagamento<br>
+                • <code>joao pg 100</code> - Se deve 70, fica com 30 de crédito!
             </div>
         </div>
 
@@ -1065,13 +1085,51 @@
             <div class="command-example">nome pg valor</div>
             <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 15px;">
                 Exemplo: <em>maria pg 30</em><br>
-                Diminui R$ 30,00 da dívida da Maria
+                Se pagar mais do que deve, vira <b>crédito</b>!
             </p>
 
-            <p><strong>Atalhos:</strong></p>
-            <div class="command-example">clientes, resumo, backup</div>
+            <p><strong>Gerenciar cliente:</strong></p>
+            <div class="command-example">nome</div>
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 15px;">
+                Digite só o nome para ver detalhes e editar
+            </p>
 
             <button class="close-btn" onclick="closeModal(null, 'helpModal')">Entendi!</button>
+        </div>
+    </div>
+
+    <!-- Edit Client Modal -->
+    <div class="modal" id="editClientModal" onclick="closeModal(event, 'editClientModal')">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-title">
+                <span>✏️</span>
+                Editar Cliente
+            </div>
+            
+            <input type="hidden" id="editClientOldName">
+            
+            <div class="form-group">
+                <label class="form-label">Nome</label>
+                <input type="text" class="form-input" id="editClientName" placeholder="Nome do cliente">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Telefone</label>
+                <input type="tel" class="form-input" id="editClientPhone" placeholder="(11) 99999-9999">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">WhatsApp</label>
+                <input type="tel" class="form-input" id="editClientWhatsApp" placeholder="(11) 99999-9999">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Observações</label>
+                <input type="text" class="form-input" id="editClientNotes" placeholder="Endereço, referência, etc">
+            </div>
+
+            <button class="close-btn" onclick="saveClientEdit()">💾 Salvar Alterações</button>
+            <button class="btn-secondary" onclick="closeModal(null, 'editClientModal')">Cancelar</button>
         </div>
     </div>
 
@@ -1135,27 +1193,44 @@
 
     <script>
         // ==================== CONFIGURAÇÕES GLOBAIS ====================
-        const DB_KEY = 'fiadoBot_data';
-        const BACKUP_KEY = 'fiadoBot_backups';
-        const SETTINGS_KEY = 'fiadoBot_settings';
-        const PIN_KEY = 'fiadoBot_pin';
-        const RECENT_CMDS_KEY = 'fiadoBot_recent';
+        const DB_KEY = 'fiadobot_data_v2'; // Versão 2 com novos campos
+        const BACKUP_KEY = 'fiadobot_backups';
+        const SETTINGS_KEY = 'fiadobot_settings';
+        const PIN_KEY = 'fiadobot_pin';
+        const RECENT_CMDS_KEY = 'fiadobot_recent';
 
         let currentPin = '';
         let isSettingPin = false;
         let tempPin = '';
         let privacyMode = false;
+        let currentEditingClient = null;
 
         // ==================== INICIALIZAÇÃO ====================
         document.addEventListener('DOMContentLoaded', () => {
+            migrateOldData();
             loadSettings();
             checkPinProtection();
             updateRecentCommands();
-            setupSwipeGestures();
             setupAutocomplete();
         });
 
-        // ==================== TEMA ESCURO ====================
+        // ==================== MIGRAÇÃO DE DADOS ====================
+        function migrateOldData() {
+            const oldData = localStorage.getItem('fiadobot_data');
+            if (oldData && !localStorage.getItem(DB_KEY)) {
+                const data = JSON.parse(oldData);
+                // Adicionar novos campos aos clientes existentes
+                for (let name in data) {
+                    if (!data[name].phone) data[name].phone = '';
+                    if (!data[name].whatsapp) data[name].whatsapp = '';
+                    if (!data[name].notes) data[name].notes = '';
+                }
+                localStorage.setItem(DB_KEY, JSON.stringify(data));
+                console.log('Dados migrados para v2');
+            }
+        }
+
+        // ==================== TEMA E CONFIGURAÇÕES ====================
         function loadSettings() {
             const settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
             
@@ -1197,7 +1272,6 @@
             }
         }
 
-        // ==================== MODO PRIVACIDADE ====================
         function togglePrivacy() {
             privacyMode = !privacyMode;
             const settings = getSettings();
@@ -1249,7 +1323,6 @@
             
             lockScreen.classList.remove('hidden');
             
-            // Verificar se suporta biometria
             if (window.PublicKeyCredential && navigator.credentials) {
                 lockContent.innerHTML = `
                     <div class="lock-icon">🔐</div>
@@ -1271,7 +1344,6 @@
                     </div>
                 `;
                 
-                // Tentar biometria automaticamente
                 setTimeout(useBiometric, 500);
             } else {
                 renderPinPad();
@@ -1364,7 +1436,6 @@
                     currentPin = '';
                     updatePinDisplay();
                     
-                    // Vibrar em erro (se suportado)
                     if (navigator.vibrate) {
                         navigator.vibrate([50, 100, 50]);
                     }
@@ -1393,7 +1464,7 @@
                 await navigator.credentials.get({ publicKey });
                 hideLockScreen();
             } catch (err) {
-                console.log('Biometria falhou ou não suportada:', err);
+                console.log('Biometria falhou:', err);
             }
         }
 
@@ -1407,7 +1478,6 @@
             const savedPin = localStorage.getItem(PIN_KEY);
             
             if (settings.pinProtection) {
-                // Desativar
                 if (confirm('Deseja remover a proteção com PIN?')) {
                     localStorage.removeItem(PIN_KEY);
                     settings.pinProtection = false;
@@ -1416,7 +1486,6 @@
                     showStatus('🔓 Proteção removida', 'success');
                 }
             } else {
-                // Ativar
                 isSettingPin = true;
                 showLockScreen();
                 document.querySelector('.lock-title').textContent = 'Crie um PIN de 4 dígitos';
@@ -1444,11 +1513,19 @@
                 if (matches.length > 0) {
                     list.innerHTML = matches.map(name => {
                         const balance = db[name].balance;
-                        const balanceClass = balance > 0 ? 'negative' : '';
+                        let balanceClass = '';
+                        let balanceText = formatCurrency(balance);
+                        
+                        if (balance > 0) balanceClass = 'negative';
+                        else if (balance < 0) {
+                            balanceClass = 'positive';
+                            balanceText = '+' + formatCurrency(Math.abs(balance)) + ' crédito';
+                        }
+                        
                         return `
                             <div class="autocomplete-item" onclick="selectClient('${name}')">
                                 <span>${name.charAt(0).toUpperCase() + name.slice(1)}</span>
-                                <span class="balance ${balanceClass}">${formatCurrency(balance)}</span>
+                                <span class="balance ${balanceClass}">${balanceText}</span>
                             </div>
                         `;
                     }).join('');
@@ -1458,7 +1535,6 @@
                 }
             });
             
-            // Fechar ao clicar fora
             document.addEventListener('click', (e) => {
                 if (!e.target.closest('.autocomplete-container')) {
                     list.classList.remove('show');
@@ -1473,110 +1549,6 @@
             input.value = parts.join(' ');
             document.getElementById('autocompleteList').classList.remove('show');
             input.focus();
-        }
-
-        // ==================== SWIPE GESTURES ====================
-        function setupSwipeGestures() {
-            const container = document.getElementById('chatContainer');
-            let startX = 0;
-            let currentX = 0;
-            let currentElement = null;
-            
-            container.addEventListener('touchstart', handleTouchStart, { passive: true });
-            container.addEventListener('touchmove', handleTouchMove, { passive: true });
-            container.addEventListener('touchend', handleTouchEnd);
-            
-            function handleTouchStart(e) {
-                const message = e.target.closest('.message');
-                if (!message || message.classList.contains('user-message')) return;
-                
-                startX = e.touches[0].clientX;
-                currentElement = message;
-                currentElement.classList.add('swiping');
-            }
-            
-            function handleTouchMove(e) {
-                if (!currentElement) return;
-                
-                currentX = e.touches[0].clientX;
-                const diff = currentX - startX;
-                
-                // Limitar movimento
-                if (Math.abs(diff) < 100) {
-                    currentElement.style.transform = `translateX(${diff}px)`;
-                }
-            }
-            
-            function handleTouchEnd(e) {
-                if (!currentElement) return;
-                
-                const diff = currentX - startX;
-                const threshold = 80;
-                
-                if (diff > threshold) {
-                    // Swipe direita - editar
-                    showEditAction(currentElement);
-                } else if (diff < -threshold) {
-                    // Swipe esquerda - deletar
-                    showDeleteAction(currentElement);
-                } else {
-                    // Voltar ao lugar
-                    currentElement.style.transform = '';
-                }
-                
-                currentElement.classList.remove('swiping');
-                currentElement = null;
-                startX = 0;
-                currentX = 0;
-            }
-        }
-
-        function showEditAction(element) {
-            element.style.transform = 'translateX(60px)';
-            // Implementar edição se necessário
-            setTimeout(() => {
-                element.style.transform = '';
-            }, 2000);
-        }
-
-        function showDeleteAction(element) {
-            element.style.transform = 'translateX(-60px)';
-            // Implementar exclusão se necessário
-            setTimeout(() => {
-                element.style.transform = '';
-            }, 2000);
-        }
-
-        // ==================== COMANDOS RECENTES ====================
-        function addRecentCommand(command) {
-            let recent = JSON.parse(localStorage.getItem(RECENT_CMDS_KEY) || '[]');
-            
-            // Remover duplicados
-            recent = recent.filter(cmd => cmd !== command);
-            
-            // Adicionar no início
-            recent.unshift(command);
-            
-            // Manter apenas 5
-            recent = recent.slice(0, 5);
-            
-            localStorage.setItem(RECENT_CMDS_KEY, JSON.stringify(recent));
-            updateRecentCommands();
-        }
-
-        function updateRecentCommands() {
-            const container = document.getElementById('recentCommands');
-            const recent = JSON.parse(localStorage.getItem(RECENT_CMDS_KEY) || '[]');
-            
-            if (recent.length === 0) {
-                container.style.display = 'none';
-                return;
-            }
-            
-            container.style.display = 'flex';
-            container.innerHTML = recent.map(cmd => `
-                <button class="recent-cmd" onclick="executeCommand('${cmd}')">${cmd}</button>
-            `).join('');
         }
 
         // ==================== BANCO DE DADOS ====================
@@ -1622,7 +1594,6 @@
             container.appendChild(messageDiv);
             container.scrollTop = container.scrollHeight;
             
-            // Aplicar privacidade se ativo
             if (privacyMode) {
                 setTimeout(applyPrivacyMode, 100);
             }
@@ -1632,7 +1603,7 @@
             return new Intl.NumberFormat('pt-BR', {
                 style: 'currency',
                 currency: 'BRL'
-            }).format(value);
+            }).format(Math.abs(value));
         }
 
         function formatDate(dateString) {
@@ -1706,31 +1677,107 @@
                 const db = getDatabase();
 
                 if (action === 'adc' || action === 'add') {
+                    // NOVO: Verificar se cliente tem crédito (saldo negativo)
+                    let creditUsed = 0;
+                    let actualValue = value;
+                    
                     if (!db[name]) {
-                        db[name] = { balance: 0, transactions: [] };
+                        db[name] = { 
+                            balance: 0, 
+                            transactions: [],
+                            phone: '',
+                            whatsapp: '',
+                            notes: ''
+                        };
                     }
                     
-                    db[name].balance += value;
-                    db[name].transactions.push({
-                        type: 'adc',
-                        value: value,
-                        date: new Date().toISOString(),
-                        description: 'Venda fiado'
-                    });
-
+                    // Se tem crédito (saldo negativo), usa o crédito primeiro
+                    if (db[name].balance < 0) {
+                        const credit = Math.abs(db[name].balance);
+                        if (credit >= value) {
+                            // Crédito cobre tudo
+                            db[name].balance += value; // Aumenta (menos negativo)
+                            creditUsed = value;
+                            actualValue = 0;
+                            
+                            db[name].transactions.push({
+                                type: 'credit_use',
+                                value: value,
+                                date: new Date().toISOString(),
+                                description: `Usou R$ ${formatCurrency(value)} de crédito`
+                            });
+                            
+                            saveDatabase(db);
+                            
+                            addMessage(`
+                                <div class="success-message" style="margin: -12px -16px; padding: 12px 16px; border-radius: 20px;">
+                                    ✅ <strong>${name.charAt(0).toUpperCase() + name.slice(1)}</strong><br>
+                                    Compra: ${formatCurrency(value)}<br>
+                                    💳 Pago com crédito!<br>
+                                    <strong>Crédito restante: ${formatCurrency(Math.abs(db[name].balance))}</strong>
+                                </div>
+                            `, 'bot');
+                            return;
+                        } else {
+                            // Crédito parcial
+                            creditUsed = credit;
+                            actualValue = value - credit;
+                            db[name].balance = 0; // Zera o crédito
+                            
+                            db[name].transactions.push({
+                                type: 'credit_use',
+                                value: credit,
+                                date: new Date().toISOString(),
+                                description: `Usou R$ ${formatCurrency(credit)} de crédito`
+                            });
+                        }
+                    }
+                    
+                    // Adiciona o restante à dívida
+                    if (actualValue > 0) {
+                        db[name].balance += actualValue;
+                        db[name].transactions.push({
+                            type: 'adc',
+                            value: actualValue,
+                            date: new Date().toISOString(),
+                            description: creditUsed > 0 ? `Venda (após usar crédito)` : 'Venda fiado'
+                        });
+                    }
+                    
                     saveDatabase(db);
                     
-                    addMessage(`
+                    let msg = `
                         <div class="success-message" style="margin: -12px -16px; padding: 12px 16px; border-radius: 20px;">
                             ✅ <strong>${name.charAt(0).toUpperCase() + name.slice(1)}</strong><br>
-                            Adicionado: ${formatCurrency(value)}<br>
-                            <strong>Saldo atual: ${formatCurrency(db[name].balance)}</strong>
-                        </div>
-                    `, 'bot');
+                    `;
+                    
+                    if (creditUsed > 0) {
+                        msg += `Total: ${formatCurrency(value)}<br>`;
+                        msg += `💳 Crédito usado: ${formatCurrency(creditUsed)}<br>`;
+                        msg += `📈 Adicionado: ${formatCurrency(actualValue)}<br>`;
+                    } else {
+                        msg += `Adicionado: ${formatCurrency(value)}<br>`;
+                    }
+                    
+                    msg += `<strong>Saldo atual: ${formatCurrency(db[name].balance)}</strong>`;
+                    
+                    if (db[name].balance < 0) {
+                        msg += `<br><span class="credit-badge">💰 TEM CRÉDITO</span>`;
+                    }
+                    
+                    msg += `</div>`;
+                    
+                    addMessage(msg, 'bot');
 
                 } else if (action === 'pg' || action === 'pag') {
                     if (!db[name]) {
-                        db[name] = { balance: 0, transactions: [] };
+                        db[name] = { 
+                            balance: 0, 
+                            transactions: [],
+                            phone: '',
+                            whatsapp: '',
+                            notes: ''
+                        };
                     }
 
                     db[name].balance -= value;
@@ -1743,19 +1790,25 @@
 
                     saveDatabase(db);
 
-                    const balanceClass = db[name].balance < 0 ? 'negative' : '';
-                    const message = db[name].balance < 0 
-                        ? `<br><em style="font-size: 0.9rem;">💡 Cliente tem crédito de ${formatCurrency(Math.abs(db[name].balance))}</em>` 
-                        : '';
-
-                    addMessage(`
+                    const balance = db[name].balance;
+                    let msg = `
                         <div class="success-message" style="margin: -12px -16px; padding: 12px 16px; border-radius: 20px;">
                             ✅ <strong>${name.charAt(0).toUpperCase() + name.slice(1)}</strong><br>
                             Pagamento: ${formatCurrency(value)}<br>
-                            <strong class="${balanceClass}">Saldo atual: ${formatCurrency(db[name].balance)}</strong>
-                            ${message}
-                        </div>
-                    `, 'bot');
+                    `;
+                    
+                    if (balance < 0) {
+                        // Tem crédito
+                        msg += `<strong style="color: var(--success);">💰 CRÉDITO: ${formatCurrency(Math.abs(balance))}</strong>`;
+                    } else if (balance === 0) {
+                        msg += `<strong style="color: var(--success);">✅ Quitado!</strong>`;
+                    } else {
+                        msg += `<strong style="color: var(--danger);">Resta: ${formatCurrency(balance)}</strong>`;
+                    }
+                    
+                    msg += `</div>`;
+                    
+                    addMessage(msg, 'bot');
 
                 } else {
                     addMessage('❌ Comando não reconhecido. Use "adc" ou "pg".', 'error');
@@ -1768,7 +1821,21 @@
                 if (db[name]) {
                     showClientDetails(name, db[name]);
                 } else {
-                    addMessage(`❌ Cliente "${name}" não encontrado.`, 'error');
+                    // Criar novo cliente?
+                    if (confirm(`Cliente "${name}" não existe. Deseja criar?`)) {
+                        db[name] = {
+                            balance: 0,
+                            transactions: [],
+                            phone: '',
+                            whatsapp: '',
+                            notes: ''
+                        };
+                        saveDatabase(db);
+                        showClientDetails(name, db[name]);
+                        showStatus('✅ Cliente criado!', 'success');
+                    } else {
+                        addMessage(`❌ Cliente "${name}" não encontrado.`, 'error');
+                    }
                 }
 
             } else {
@@ -1777,21 +1844,46 @@
         }
 
         function showClientDetails(name, data) {
-            const balanceClass = data.balance > 0 ? 'negative' : '';
-            let transactionsHtml = '';
+            currentEditingClient = name;
+            const balance = data.balance;
+            let balanceClass = '';
+            let statusText = '';
+            let cardClass = '';
             
+            if (balance > 0) {
+                balanceClass = 'negative';
+                statusText = '🔴 Deve pagar';
+            } else if (balance < 0) {
+                balanceClass = 'positive';
+                statusText = '🟢 Tem crédito';
+                cardClass = 'credit';
+            } else {
+                statusText = '✅ Em dia';
+            }
+
+            let transactionsHtml = '';
             if (data.transactions && data.transactions.length > 0) {
                 const recentTransactions = data.transactions.slice(-5).reverse();
                 transactionsHtml = '<div class="transaction-list"><strong>Últimas movimentações:</strong>';
                 
                 recentTransactions.forEach(t => {
-                    const badge = t.type === 'adc' 
-                        ? '<span class="badge badge-adc">+</span>' 
-                        : '<span class="badge badge-pg">-</span>';
+                    let badge = '';
+                    let typeText = '';
+                    
+                    if (t.type === 'adc') {
+                        badge = '<span class="badge badge-adc">+</span>';
+                        typeText = 'Venda';
+                    } else if (t.type === 'pg') {
+                        badge = '<span class="badge badge-pg">-</span>';
+                        typeText = 'Pagamento';
+                    } else if (t.type === 'credit_use') {
+                        badge = '<span class="badge" style="background: #e3f2fd; color: #1976d2;">💳</span>';
+                        typeText = 'Crédito';
+                    }
                     
                     transactionsHtml += `
                         <div class="transaction-item">
-                            <span>${badge} ${formatCurrency(t.value)}</span>
+                            <span>${badge} ${typeText} ${formatCurrency(t.value)}</span>
                             <span class="date">${formatDate(t.date)}</span>
                         </div>
                     `;
@@ -1800,16 +1892,134 @@
                 transactionsHtml += '</div>';
             }
 
+            // Informações de contato
+            let contactInfo = '';
+            if (data.phone || data.whatsapp) {
+                contactInfo = '<div class="client-info">';
+                if (data.phone) contactInfo += `📞 ${data.phone}<br>`;
+                if (data.whatsapp) contactInfo += `💬 ${data.whatsapp}<br>`;
+                if (data.notes) contactInfo += `📝 ${data.notes}`;
+                contactInfo += '</div>';
+            }
+
             addMessage(`
-                <div class="balance-card">
+                <div class="balance-card ${cardClass}">
                     <div class="balance-header">
                         <span class="client-name">👤 ${name.charAt(0).toUpperCase() + name.slice(1)}</span>
-                        <span class="balance-amount ${balanceClass}">${formatCurrency(data.balance)}</span>
+                        <span class="balance-amount ${balanceClass}">
+                            ${balance < 0 ? '+' : ''}${formatCurrency(balance)}
+                            ${balance < 0 ? ' CRÉDITO' : ''}
+                        </span>
                     </div>
-                    ${data.balance > 0 ? '<span style="color: var(--danger); font-size: 0.9rem;">🔴 Deve pagar</span>' : '<span style="color: var(--success); font-size: 0.9rem;">🟢 Em dia</span>'}
+                    <span style="color: ${balance > 0 ? 'var(--danger)' : (balance < 0 ? 'var(--success)' : 'var(--text-secondary)')}; font-size: 0.9rem;">
+                        ${statusText}
+                    </span>
+                    ${contactInfo}
                     ${transactionsHtml}
+                    <div class="client-actions">
+                        <button class="client-action-btn edit" onclick="editClient('${name}')">
+                            ✏️ Editar
+                        </button>
+                        ${data.whatsapp ? `
+                        <button class="client-action-btn whatsapp" onclick="openWhatsApp('${data.whatsapp}', '${name}', ${balance})">
+                            💬 WhatsApp
+                        </button>
+                        ` : ''}
+                        <button class="client-action-btn delete" onclick="deleteClient('${name}')">
+                            🗑️ Excluir
+                        </button>
+                    </div>
                 </div>
             `, 'bot');
+        }
+
+        function editClient(name) {
+            const db = getDatabase();
+            const client = db[name];
+            
+            if (!client) return;
+            
+            document.getElementById('editClientOldName').value = name;
+            document.getElementById('editClientName').value = name;
+            document.getElementById('editClientPhone').value = client.phone || '';
+            document.getElementById('editClientWhatsApp').value = client.whatsapp || '';
+            document.getElementById('editClientNotes').value = client.notes || '';
+            
+            document.getElementById('editClientModal').style.display = 'block';
+        }
+
+        function saveClientEdit() {
+            const oldName = document.getElementById('editClientOldName').value;
+            const newName = document.getElementById('editClientName').value.trim().toLowerCase();
+            const phone = document.getElementById('editClientPhone').value.trim();
+            const whatsapp = document.getElementById('editClientWhatsApp').value.trim();
+            const notes = document.getElementById('editClientNotes').value.trim();
+            
+            if (!newName) {
+                showStatus('❌ Nome é obrigatório', 'error');
+                return;
+            }
+            
+            const db = getDatabase();
+            
+            // Se mudou o nome, verificar se novo nome já existe
+            if (oldName !== newName && db[newName]) {
+                showStatus('❌ Já existe cliente com este nome', 'error');
+                return;
+            }
+            
+            // Atualizar dados
+            const clientData = db[oldName];
+            clientData.phone = phone;
+            clientData.whatsapp = whatsapp;
+            clientData.notes = notes;
+            
+            // Se mudou nome, transferir dados
+            if (oldName !== newName) {
+                db[newName] = clientData;
+                delete db[oldName];
+            }
+            
+            saveDatabase(db);
+            closeModal(null, 'editClientModal');
+            showStatus('✅ Cliente atualizado!', 'success');
+            
+            // Recarregar visualização
+            showClientDetails(newName, clientData);
+        }
+
+        function openWhatsApp(number, name, balance) {
+            // Limpar número
+            const cleanNumber = number.replace(/\D/g, '');
+            let message = '';
+            
+            if (balance > 0) {
+                message = `Olá ${name.charAt(0).toUpperCase() + name.slice(1)}! Passando para lembrar que há um pagamento pendente de ${formatCurrency(balance)}. Pode confirmar quando consegue quitar? Obrigado!`;
+            } else if (balance < 0) {
+                message = `Olá ${name.charAt(0).toUpperCase() + name.slice(1)}! Você tem um crédito de ${formatCurrency(Math.abs(balance))} conosco. Agradecemos a preferência!`;
+            } else {
+                message = `Olá ${name.charAt(0).toUpperCase() + name.slice(1)}! Sua conta está em dia. Obrigado pela preferência!`;
+            }
+            
+            const whatsappUrl = `https://wa.me/55${cleanNumber}?text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
+        }
+
+        function deleteClient(name) {
+            if (!confirm(`⚠️ Deseja excluir o cliente "${name}" permanentemente?\n\nTodas as transações serão perdidas!`)) {
+                return;
+            }
+            
+            if (!confirm(`Tem certeza? Esta ação não pode ser desfeita!`)) {
+                return;
+            }
+            
+            const db = getDatabase();
+            delete db[name];
+            saveDatabase(db);
+            
+            showStatus('🗑️ Cliente excluído', 'success');
+            clearChat();
         }
 
         function showAllClients() {
@@ -1822,24 +2032,51 @@
             }
 
             let totalReceber = 0;
+            let totalCredito = 0;
             let html = '<div style="margin: -12px -16px; padding: 12px 16px;">';
             html += '<h3 style="margin-bottom: 15px; color: var(--text-primary);">👥 Clientes</h3>';
 
-            const sortedClients = clients.sort((a, b) => db[b].balance - db[a].balance);
+            // Ordenar: devedores primeiro, depois crédito, depois zerados
+            const sortedClients = clients.sort((a, b) => {
+                const balanceA = db[a].balance;
+                const balanceB = db[b].balance;
+                if (balanceA > 0 && balanceB <= 0) return -1;
+                if (balanceA <= 0 && balanceB > 0) return 1;
+                return balanceB - balanceA;
+            });
 
             sortedClients.forEach(name => {
                 const data = db[name];
-                const balanceClass = data.balance > 0 ? 'negative' : '';
-                if (data.balance > 0) totalReceber += data.balance;
+                const balance = data.balance;
+                let balanceClass = '';
+                let cardClass = '';
+                let indicator = '';
+                
+                if (balance > 0) {
+                    balanceClass = 'negative';
+                    totalReceber += balance;
+                    indicator = '🔴';
+                } else if (balance < 0) {
+                    balanceClass = 'positive';
+                    cardClass = 'credit';
+                    totalCredito += Math.abs(balance);
+                    indicator = '💰';
+                } else {
+                    indicator = '✅';
+                }
 
                 html += `
-                    <div class="balance-card" style="margin: 8px 0;">
+                    <div class="balance-card ${cardClass}" style="margin: 8px 0; cursor: pointer;" onclick="executeCommand('${name}')">
                         <div class="balance-header">
-                            <span class="client-name">${name.charAt(0).toUpperCase() + name.slice(1)}</span>
-                            <span class="balance-amount ${balanceClass}">${formatCurrency(data.balance)}</span>
+                            <span class="client-name">${indicator} ${name.charAt(0).toUpperCase() + name.slice(1)}</span>
+                            <span class="balance-amount ${balanceClass}">
+                                ${balance < 0 ? '+' : ''}${formatCurrency(balance)}
+                            </span>
                         </div>
                         <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 5px;">
                             ${data.transactions.length} movimentações
+                            ${data.phone ? ' • 📞' : ''}
+                            ${data.whatsapp ? ' • 💬' : ''}
                         </div>
                     </div>
                 `;
@@ -1847,8 +2084,16 @@
 
             html += `
                 <div class="total-summary" style="margin-top: 15px;">
-                    <div class="total-label">Total a Receber</div>
-                    <div class="total-value ${totalReceber === 0 ? 'positive' : ''}">${formatCurrency(totalReceber)}</div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div>
+                            <div class="total-label">A Receber</div>
+                            <div class="total-value" style="font-size: 1.5rem;">${formatCurrency(totalReceber)}</div>
+                        </div>
+                        <div>
+                            <div class="total-label">Créditos</div>
+                            <div class="total-value positive" style="font-size: 1.5rem;">${formatCurrency(totalCredito)}</div>
+                        </div>
+                    </div>
                 </div>
             </div>`;
 
@@ -1860,8 +2105,11 @@
             const clients = Object.keys(db);
             
             let totalReceber = 0;
+            let totalCredito = 0;
             let totalClientesDevedores = 0;
+            let totalClientesCredores = 0;
             let maiorDevedor = { name: '-', value: 0 };
+            let maiorCredor = { name: '-', value: 0 };
 
             clients.forEach(name => {
                 const balance = db[name].balance;
@@ -1870,6 +2118,13 @@
                     totalClientesDevedores++;
                     if (balance > maiorDevedor.value) {
                         maiorDevedor = { name, value: balance };
+                    }
+                } else if (balance < 0) {
+                    const credito = Math.abs(balance);
+                    totalCredito += credito;
+                    totalClientesCredores++;
+                    if (credito > maiorCredor.value) {
+                        maiorCredor = { name, value: credito };
                     }
                 }
             });
@@ -1880,22 +2135,24 @@
                     
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
                         <div style="background: var(--bg-input); padding: 15px; border-radius: 10px;">
-                            <div style="font-size: 0.9rem; color: var(--text-secondary);">Total a Receber</div>
+                            <div style="font-size: 0.9rem; color: var(--text-secondary);">A Receber</div>
                             <div style="font-size: 1.5rem; font-weight: 700; color: ${totalReceber > 0 ? 'var(--danger)' : 'var(--success)'};">
                                 ${formatCurrency(totalReceber)}
                             </div>
                         </div>
                         <div style="background: var(--bg-input); padding: 15px; border-radius: 10px;">
-                            <div style="font-size: 0.9rem; color: var(--text-secondary);">Clientes</div>
-                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">
-                                ${clients.length}
+                            <div style="font-size: 0.9rem; color: var(--text-secondary);">Créditos</div>
+                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--success);">
+                                ${formatCurrency(totalCredito)}
                             </div>
                         </div>
                     </div>
 
                     <div style="text-align: left; font-size: 0.95rem; color: var(--text-secondary);">
-                        <div style="margin: 8px 0;">🔴 Devendo: <strong>${totalClientesDevedores}</strong></div>
+                        <div style="margin: 8px 0;">🔴 Devedores: <strong>${totalClientesDevedores}</strong></div>
+                        <div style="margin: 8px 0;">💰 Com crédito: <strong>${totalClientesCredores}</strong></div>
                         ${maiorDevedor.value > 0 ? `<div style="margin: 8px 0;">⚠️ Maior devedor: <strong>${maiorDevedor.name}</strong> (${formatCurrency(maiorDevedor.value)})</div>` : ''}
+                        ${maiorCredor.value > 0 ? `<div style="margin: 8px 0;">💎 Maior crédito: <strong>${maiorCredor.name}</strong> (${formatCurrency(maiorCredor.value)})</div>` : ''}
                     </div>
                 </div>
             `;
@@ -1909,10 +2166,11 @@
                 <div class="bot-message message">
                     🧹 Chat limpo!<br><br>
                     <strong>Comandos:</strong><br>
-                    • <code>nome adc valor</code> - Adicionar<br>
-                    • <code>nome pg valor</code> - Pagar<br>
-                    • <code>clientes</code> - Lista<br>
-                    • <code>resumo</code> - Total
+                    • <code>joao adc 50</code> - Adicionar venda<br>
+                    • <code>maria pg 30</code> - Registrar pagamento<br>
+                    • <code>joao</code> - Ver detalhes do cliente<br>
+                    • <code>clientes</code> - Lista completa<br>
+                    • <code>resumo</code> - Total geral
                 </div>
             `;
         }
@@ -1923,7 +2181,6 @@
         }
 
         function showBackup() {
-            // Atualizar toggles
             const settings = getSettings();
             document.getElementById('themeToggle').classList.toggle('active', settings.darkMode);
             document.getElementById('privacyToggle').classList.toggle('active', settings.privacyMode);
@@ -2043,6 +2300,30 @@
             setTimeout(() => div.remove(), 3000);
         }
 
+        function addRecentCommand(command) {
+            let recent = JSON.parse(localStorage.getItem(RECENT_CMDS_KEY) || '[]');
+            recent = recent.filter(cmd => cmd !== command);
+            recent.unshift(command);
+            recent = recent.slice(0, 5);
+            localStorage.setItem(RECENT_CMDS_KEY, JSON.stringify(recent));
+            updateRecentCommands();
+        }
+
+        function updateRecentCommands() {
+            const container = document.getElementById('recentCommands');
+            const recent = JSON.parse(localStorage.getItem(RECENT_CMDS_KEY) || '[]');
+            
+            if (recent.length === 0) {
+                container.style.display = 'none';
+                return;
+            }
+            
+            container.style.display = 'flex';
+            container.innerHTML = recent.map(cmd => `
+                <button class="recent-cmd" onclick="executeCommand('${cmd}')">${cmd}</button>
+            `).join('');
+        }
+
         // ==================== PWA ====================
         let deferredPrompt;
         const installBanner = document.getElementById('installBanner');
@@ -2063,9 +2344,6 @@
             if (deferredPrompt) {
                 deferredPrompt.prompt();
                 deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        console.log('Usuário aceitou instalação');
-                    }
                     deferredPrompt = null;
                 });
             }
