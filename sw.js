@@ -1,89 +1,70 @@
-// sw.js - Corrigido para: blecauth.github.io/Controle-fiado-chatbot/
-const CACHE_NAME = 'fiadobot-v1.4';
-const BASE_PATH = '/Controle-fiado-chatbot/';
-
+// sw.js - Service Worker com atualização automática
+const CACHE_NAME = 'fiadobot-cache-v1.4';
 const STATIC_ASSETS = [
-  BASE_PATH,
-  BASE_PATH + 'index.html',
-  BASE_PATH + 'manifest.json',
-  BASE_PATH + 'icons/icon-72x72.png',
-  BASE_PATH + 'icons/icon-96x96.png',
-  BASE_PATH + 'icons/icon-128x128.png',
-  BASE_PATH + 'icons/icon-144x144.png',
-  BASE_PATH + 'icons/icon-152x152.png',
-  BASE_PATH + 'icons/icon-192x192.png',
-  BASE_PATH + 'icons/icon-384x384.png',
-  BASE_PATH + 'icons/icon-512x512.png'
+  '/Controle-fiado-chatbot/',
+  '/Controle-fiado-chatbot/index.html',
+  '/Controle-fiado-chatbot/manifest.json'
 ];
 
+// Instalação: Cacheia assets e força ativação imediata
 self.addEventListener('install', (event) => {
   console.log('[SW] Instalando...');
+  
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        console.log('[SW] Cache aberto, adicionando assets:', STATIC_ASSETS);
+        console.log('[SW] Cache aberto');
         return cache.addAll(STATIC_ASSETS);
       })
-      .catch((err) => {
-        console.error('[SW] Erro ao cachear:', err);
-      })
+      .then(() => self.skipWaiting())
+      .catch((err) => console.error('[SW] Erro:', err))
   );
-  self.skipWaiting();
 });
 
+// Ativação: Limpa caches antigos e assume controle
 self.addEventListener('activate', (event) => {
   console.log('[SW] Ativando...');
+  
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames
           .filter((name) => name !== CACHE_NAME)
           .map((name) => {
-            console.log('[SW] Deletando cache antigo:', name);
+            console.log('[SW] Deletando:', name);
             return caches.delete(name);
           })
       );
-    })
+    }).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
+// Fetch: Network First com fallback para cache
 self.addEventListener('fetch', (event) => {
-  // Ignora métodos que não são GET
   if (event.request.method !== 'GET') return;
-  
-  // Ignora requisições de outros domínios
   if (!event.request.url.startsWith(self.location.origin)) return;
 
-  const url = new URL(event.request.url);
-  
-  // Estratégia: Cache First para assets, Network First para HTML
   event.respondWith(
-    caches.match(event.request).then((response) => {
-      if (response) {
-        console.log('[SW] Servindo do cache:', url.pathname);
-        return response;
-      }
-      
-      console.log('[SW] Buscando na rede:', url.pathname);
-      return fetch(event.request).then((fetchResponse) => {
-        if (!fetchResponse || fetchResponse.status !== 200) {
-          return fetchResponse;
+    fetch(event.request)
+      .then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200) {
+          const responseToCache = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
         }
-        
-        const responseToCache = fetchResponse.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseToCache);
-        });
-        
-        return fetchResponse;
-      }).catch((error) => {
-        console.error('[SW] Fetch falhou:', error);
-        // Fallback para offline
-        if (event.request.mode === 'navigate') {
-          return caches.match(BASE_PATH + 'index.html');
-        }
-      });
-    })
+        return networkResponse;
+      })
+      .catch(() => {
+        console.log('[SW] Offline, usando cache');
+        return caches.match(event.request);
+      })
   );
+});
+
+// Mensagens do cliente
+self.addEventListener('message', (event) => {
+  if (event.data === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
