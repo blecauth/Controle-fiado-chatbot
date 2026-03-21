@@ -8,23 +8,12 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="description" content="Controle de vendas fiado - Gerencie clientes e pagamentos">
     
-    <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
-    
-    <!-- Ícones Apple -->
     <link rel="apple-touch-icon" href="icons/icon-192x192.png">
     <link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152x152.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-192x192.png">
     
     <title>FiadoBot</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-
         :root {
             --safe-area-top: env(safe-area-inset-top, 0px);
             --safe-area-bottom: env(safe-area-inset-bottom, 0px);
@@ -32,6 +21,38 @@
             --safe-area-right: env(safe-area-inset-right, 0px);
             --primary: #667eea;
             --secondary: #764ba2;
+            --bg-gradient-start: #667eea;
+            --bg-gradient-end: #764ba2;
+            --text-primary: #333;
+            --text-secondary: #666;
+            --bg-card: white;
+            --bg-input: white;
+            --border-color: #e0e0e0;
+            --success: #4CAF50;
+            --danger: #e53935;
+            --warning: #ff9800;
+        }
+
+        [data-theme="dark"] {
+            --primary: #8b9dc3;
+            --secondary: #6b5b95;
+            --bg-gradient-start: #1a1a2e;
+            --bg-gradient-end: #16213e;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --bg-card: #2d2d44;
+            --bg-input: #1e1e32;
+            --border-color: #3d3d5c;
+            --success: #66bb6a;
+            --danger: #ef5350;
+            --warning: #ffa726;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
         html {
@@ -41,7 +62,7 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
             height: 100%;
             height: -webkit-fill-available;
             overflow: hidden;
@@ -51,16 +72,17 @@
             padding-bottom: var(--safe-area-bottom);
             padding-left: var(--safe-area-left);
             padding-right: var(--safe-area-right);
+            transition: all 0.3s ease;
         }
 
-        /* Splash screen */
+        /* Splash Screen */
         .splash-screen {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -91,6 +113,156 @@
             50% { transform: scale(1.1); }
         }
 
+        /* Lock Screen */
+        .lock-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .lock-screen.hidden {
+            display: none;
+        }
+
+        .lock-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        .lock-title {
+            color: white;
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .pin-display {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .pin-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 3px solid white;
+            background: transparent;
+            transition: all 0.2s;
+        }
+
+        .pin-dot.filled {
+            background: white;
+        }
+
+        .pin-error {
+            color: #ff6b6b;
+            margin-bottom: 20px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .pin-error.show {
+            opacity: 1;
+        }
+
+        .pin-pad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            max-width: 280px;
+        }
+
+        .pin-btn {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.1);
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            backdrop-filter: blur(10px);
+        }
+
+        .pin-btn:active {
+            background: rgba(255,255,255,0.3);
+            transform: scale(0.95);
+        }
+
+        .pin-btn.delete {
+            font-size: 1.2rem;
+        }
+
+        .biometric-btn {
+            margin-top: 30px;
+            padding: 15px 30px;
+            background: rgba(255,255,255,0.2);
+            border: 2px solid white;
+            border-radius: 30px;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .setup-pin {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 350px;
+            text-align: center;
+        }
+
+        .setup-pin h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .setup-pin p {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+
+        .setup-btn {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        .setup-btn.primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .setup-btn.secondary {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 2px solid var(--border-color);
+        }
+
+        /* Header */
         .header {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
@@ -99,6 +271,9 @@
             color: white;
             border-bottom: 1px solid rgba(255, 255, 255, 0.2);
             flex-shrink: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .header h1 {
@@ -106,8 +281,34 @@
             font-weight: 600;
             display: flex;
             align-items: center;
-            justify-content: center;
             gap: 10px;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .header-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .header-btn:active {
+            background: rgba(255,255,255,0.3);
+            transform: scale(0.95);
         }
 
         .install-banner {
@@ -139,6 +340,7 @@
             cursor: pointer;
         }
 
+        /* Quick Actions */
         .quick-actions {
             display: flex;
             gap: 8px;
@@ -166,6 +368,59 @@
             transform: scale(0.95);
         }
 
+        /* Autocomplete Dropdown */
+        .autocomplete-container {
+            position: relative;
+            flex: 1;
+        }
+
+        .autocomplete-list {
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            right: 0;
+            background: var(--bg-card);
+            border-radius: 15px;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.2);
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+            z-index: 100;
+            margin-bottom: 10px;
+        }
+
+        .autocomplete-list.show {
+            display: block;
+        }
+
+        .autocomplete-item {
+            padding: 12px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-primary);
+        }
+
+        .autocomplete-item:last-child {
+            border-bottom: none;
+        }
+
+        .autocomplete-item:active {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .autocomplete-item .balance {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .autocomplete-item .balance.negative {
+            color: var(--danger);
+        }
+
+        /* Main Container */
         .main-container {
             flex: 1;
             display: flex;
@@ -187,6 +442,7 @@
             padding-bottom: 20px;
         }
 
+        /* Messages */
         .message {
             max-width: 85%;
             padding: 12px 16px;
@@ -195,30 +451,75 @@
             line-height: 1.4;
             animation: slideIn 0.3s ease-out;
             word-wrap: break-word;
+            position: relative;
+            user-select: none;
         }
 
         @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.swiping {
+            transition: none;
+        }
+
+        .message-actions {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .message-actions.show {
+            opacity: 1;
+        }
+
+        .message-actions.left {
+            left: 10px;
+        }
+
+        .message-actions.right {
+            right: 10px;
+        }
+
+        .action-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .action-btn.edit {
+            background: var(--warning);
+            color: white;
+        }
+
+        .action-btn.delete {
+            background: var(--danger);
+            color: white;
         }
 
         .bot-message {
             align-self: flex-start;
-            background: white;
-            color: #333;
+            background: var(--bg-card);
+            color: var(--text-primary);
             border-bottom-left-radius: 5px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
         .user-message {
             align-self: flex-end;
-            background: #4CAF50;
+            background: var(--success);
             color: white;
             border-bottom-right-radius: 5px;
         }
@@ -232,7 +533,7 @@
         .success-message {
             background: #e8f5e9;
             color: #2e7d32;
-            border-left: 4px solid #4CAF50;
+            border-left: 4px solid var(--success);
         }
 
         .info-message {
@@ -241,11 +542,12 @@
             border-left: 4px solid #2196F3;
         }
 
+        /* Input Container */
         .input-container {
-            background: white;
+            background: var(--bg-card);
             padding: 12px 15px;
             padding-bottom: calc(12px + var(--safe-area-bottom));
-            border-top: 1px solid #e0e0e0;
+            border-top: 1px solid var(--border-color);
             display: flex;
             gap: 10px;
             align-items: center;
@@ -260,11 +562,13 @@
         #commandInput {
             width: 100%;
             padding: 12px 15px;
-            border: 2px solid #e0e0e0;
+            border: 2px solid var(--border-color);
             border-radius: 25px;
             font-size: 1rem;
             outline: none;
-            transition: border-color 0.3s;
+            transition: all 0.3s;
+            background: var(--bg-input);
+            color: var(--text-primary);
         }
 
         #commandInput:focus {
@@ -292,12 +596,23 @@
             transform: scale(0.95);
         }
 
+        /* Cards */
         .balance-card {
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             border-radius: 15px;
             padding: 15px;
             margin: 10px 0;
             border-left: 5px solid var(--primary);
+            position: relative;
+            overflow: hidden;
+        }
+
+        [data-theme="dark"] .balance-card {
+            background: linear-gradient(135deg, #2d2d44 0%, #1e1e32 100%);
+        }
+
+        .balance-card.swiping {
+            transition: none;
         }
 
         .balance-header {
@@ -309,7 +624,7 @@
 
         .client-name {
             font-weight: 600;
-            color: #333;
+            color: var(--text-primary);
             font-size: 1.1rem;
         }
 
@@ -320,13 +635,13 @@
         }
 
         .balance-amount.negative {
-            color: #e53935;
+            color: var(--danger);
         }
 
         .transaction-list {
             margin-top: 10px;
             font-size: 0.85rem;
-            color: #666;
+            color: var(--text-secondary);
         }
 
         .transaction-item {
@@ -334,6 +649,10 @@
             justify-content: space-between;
             padding: 5px 0;
             border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        [data-theme="dark"] .transaction-item {
+            border-bottom-color: rgba(255,255,255,0.05);
         }
 
         .transaction-item:last-child {
@@ -345,6 +664,7 @@
             font-size: 0.8rem;
         }
 
+        /* Modals */
         .modal {
             display: none;
             position: fixed;
@@ -361,7 +681,7 @@
         }
 
         .modal-content {
-            background: white;
+            background: var(--bg-card);
             border-radius: 20px;
             padding: 25px;
             max-width: 400px;
@@ -369,22 +689,17 @@
             animation: slideUp 0.3s ease-out;
             max-height: 90vh;
             overflow-y: auto;
+            color: var(--text-primary);
         }
 
         @keyframes slideUp {
-            from {
-                transform: translateY(50px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
 
         .modal-title {
             font-size: 1.3rem;
-            color: #333;
+            color: var(--text-primary);
             margin-bottom: 20px;
             display: flex;
             align-items: center;
@@ -392,13 +707,14 @@
         }
 
         .command-example {
-            background: #f5f5f5;
+            background: var(--bg-input);
             padding: 12px;
             border-radius: 10px;
             margin: 10px 0;
             font-family: 'Courier New', monospace;
             font-size: 0.9rem;
             border-left: 4px solid var(--primary);
+            color: var(--text-primary);
         }
 
         .close-btn {
@@ -418,7 +734,7 @@
             padding: 15px;
             margin: 10px 0;
             border: 2px solid var(--primary);
-            background: white;
+            background: var(--bg-card);
             color: var(--primary);
             border-radius: 12px;
             font-size: 1rem;
@@ -437,22 +753,22 @@
         }
 
         .backup-btn.danger {
-            border-color: #e53935;
-            color: #e53935;
+            border-color: var(--danger);
+            color: var(--danger);
         }
 
         .backup-btn.danger:active {
-            background: #e53935;
+            background: var(--danger);
             color: white;
         }
 
         .backup-info {
-            background: #e3f2fd;
+            background: var(--bg-input);
             padding: 15px;
             border-radius: 10px;
             margin: 15px 0;
             font-size: 0.9rem;
-            color: #1565c0;
+            color: var(--text-secondary);
         }
 
         .total-summary {
@@ -464,20 +780,24 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
 
+        [data-theme="dark"] .total-summary {
+            background: rgba(45,45,68,0.95);
+        }
+
         .total-label {
             font-size: 0.9rem;
-            color: #666;
+            color: var(--text-secondary);
             margin-bottom: 5px;
         }
 
         .total-value {
             font-size: 2rem;
             font-weight: 700;
-            color: #e53935;
+            color: var(--danger);
         }
 
         .total-value.positive {
-            color: #43a047;
+            color: var(--success);
         }
 
         .badge {
@@ -508,7 +828,7 @@
             top: calc(60px + var(--safe-area-top));
             left: 50%;
             transform: translateX(-50%);
-            background: #4CAF50;
+            background: var(--success);
             color: white;
             padding: 12px 24px;
             border-radius: 25px;
@@ -519,7 +839,7 @@
         }
 
         .status-bar.error {
-            background: #e53935;
+            background: var(--danger);
         }
 
         @keyframes fadeIn {
@@ -563,9 +883,93 @@
         .offline-indicator.show {
             transform: translateY(0);
         }
+
+        /* Toggle Switch */
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .toggle-label {
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 28px;
+            background: #ccc;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: var(--primary);
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .toggle-switch.active .toggle-slider {
+            transform: translateX(22px);
+        }
+
+        /* Privacy Mode */
+        .privacy-blur {
+            filter: blur(8px);
+            user-select: none;
+        }
+
+        /* Recent Commands */
+        .recent-commands {
+            display: flex;
+            gap: 8px;
+            padding: 10px 15px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            background: rgba(255,255,255,0.05);
+        }
+
+        .recent-cmd {
+            padding: 6px 12px;
+            background: rgba(102, 126, 234, 0.2);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 15px;
+            color: white;
+            font-size: 0.8rem;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+
+        .recent-cmd:active {
+            background: rgba(102, 126, 234, 0.4);
+            transform: scale(0.95);
+        }
     </style>
 </head>
 <body>
+    <!-- Lock Screen -->
+    <div class="lock-screen" id="lockScreen">
+        <div class="lock-content" id="lockContent">
+            <!-- Conteúdo será inserido via JS -->
+        </div>
+    </div>
+
     <!-- Splash Screen -->
     <div class="splash-screen" id="splashScreen">
         <div class="splash-icon">💰</div>
@@ -585,12 +989,23 @@
 
     <div class="auto-save-indicator" id="autoSaveIndicator">💾 Salvo</div>
 
+    <!-- Header -->
     <div class="header">
+        <div class="header-actions">
+            <button class="header-btn" onclick="togglePrivacy()" title="Modo Privacidade">👁️</button>
+        </div>
         <h1>
             <span style="font-size: 1.8rem;">💰</span>
             FiadoBot
         </h1>
+        <div class="header-actions">
+            <button class="header-btn" onclick="toggleTheme()" title="Tema Escuro/Claro">🌙</button>
+            <button class="header-btn" onclick="showBackup()" title="Configurações">⚙️</button>
+        </div>
     </div>
+
+    <!-- Recent Commands -->
+    <div class="recent-commands" id="recentCommands"></div>
 
     <div class="quick-actions">
         <button class="quick-btn" onclick="showHelp()">❓ Ajuda</button>
@@ -609,26 +1024,29 @@
                 • <code>maria pg 30</code> - Registra pagamento de R$ 30,00 da Maria<br>
                 • <code>clientes</code> - Ver todos os clientes<br>
                 • <code>resumo</code> - Ver total a receber<br><br>
-                <em style="font-size: 0.9rem; color: #666;">💡 Dica: Toque em "Instalar" para adicionar à tela inicial!</em>
+                <em style="font-size: 0.9rem; color: #666;">💡 Dica: Deslize mensagens para editar/excluir!</em>
             </div>
         </div>
 
         <div class="input-container">
-            <div class="input-wrapper">
-                <input 
-                    type="text" 
-                    id="commandInput" 
-                    placeholder="Ex: joao adc 50" 
-                    autocomplete="off"
-                    autocorrect="off"
-                    autocapitalize="off"
-                >
+            <div class="autocomplete-container">
+                <div class="autocomplete-list" id="autocompleteList"></div>
+                <div class="input-wrapper">
+                    <input 
+                        type="text" 
+                        id="commandInput" 
+                        placeholder="Ex: joao adc 50" 
+                        autocomplete="off"
+                        autocorrect="off"
+                        autocapitalize="off"
+                    >
+                </div>
             </div>
             <button class="send-btn" onclick="processCommand()">➤</button>
         </div>
     </div>
 
-    <!-- Modal de Ajuda -->
+    <!-- Help Modal -->
     <div class="modal" id="helpModal" onclick="closeModal(event, 'helpModal')">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="modal-title">
@@ -638,65 +1056,74 @@
             
             <p><strong>Adicionar dívida:</strong></p>
             <div class="command-example">nome adc valor</div>
-            <p style="font-size: 0.9rem; color: #666; margin-bottom: 15px;">
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 15px;">
                 Exemplo: <em>joao adc 50</em><br>
                 Adiciona R$ 50,00 na conta do João
             </p>
 
             <p><strong>Registrar pagamento:</strong></p>
             <div class="command-example">nome pg valor</div>
-            <p style="font-size: 0.9rem; color: #666; margin-bottom: 15px;">
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 15px;">
                 Exemplo: <em>maria pg 30</em><br>
                 Diminui R$ 30,00 da dívida da Maria
             </p>
 
-            <p><strong>Ver clientes:</strong></p>
-            <div class="command-example">clientes</div>
-
-            <p><strong>Ver resumo:</strong></p>
-            <div class="command-example">resumo</div>
-
-            <p><strong>Ver cliente específico:</strong></p>
-            <div class="command-example">nome</div>
+            <p><strong>Atalhos:</strong></p>
+            <div class="command-example">clientes, resumo, backup</div>
 
             <button class="close-btn" onclick="closeModal(null, 'helpModal')">Entendi!</button>
         </div>
     </div>
 
-    <!-- Modal de Backup -->
+    <!-- Settings/Backup Modal -->
     <div class="modal" id="backupModal" onclick="closeModal(event, 'backupModal')">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="modal-title">
-                <span>💾</span>
-                Backup e Restauração
+                <span>⚙️</span>
+                Configurações
             </div>
 
-            <div class="backup-info">
-                <strong>⚠️ Importante:</strong> Os dados são salvos no dispositivo. 
-                Faça backup regularmente para não perder informações!
+            <!-- Tema -->
+            <div class="toggle-container">
+                <span class="toggle-label">🌙 Tema Escuro</span>
+                <div class="toggle-switch" id="themeToggle" onclick="toggleTheme()">
+                    <div class="toggle-slider"></div>
+                </div>
+            </div>
+
+            <!-- Privacidade -->
+            <div class="toggle-container">
+                <span class="toggle-label">🔒 Modo Privacidade</span>
+                <div class="toggle-switch" id="privacyToggle" onclick="togglePrivacy()">
+                    <div class="toggle-slider"></div>
+                </div>
+            </div>
+
+            <!-- Segurança -->
+            <div class="toggle-container" style="border-bottom: none;">
+                <span class="toggle-label">🔐 Proteção com PIN</span>
+                <div class="toggle-switch" id="pinToggle" onclick="togglePinProtection()">
+                    <div class="toggle-slider"></div>
+                </div>
+            </div>
+
+            <div class="backup-info" style="margin-top: 20px;">
+                <strong>💾 Backup de Dados</strong><br>
+                Exporte seus dados para não perdê-los ao trocar de celular.
             </div>
 
             <button class="backup-btn" onclick="exportData()">
-                <span>📤</span> Exportar Backup (Download)
+                <span>📤</span> Exportar Backup
             </button>
 
             <button class="backup-btn" onclick="document.getElementById('importFile').click()">
-                <span>📥</span> Importar Backup (Restaurar)
+                <span>📥</span> Importar Backup
             </button>
             <input type="file" id="importFile" class="hidden-input" accept=".json" onchange="importData(this)">
 
             <button class="backup-btn" onclick="shareBackup()">
-                <span>📱</span> Compartilhar Backup
+                <span>📱</span> Compartilhar
             </button>
-
-            <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #eee;">
-                <p style="font-size: 0.9rem; color: #666; margin-bottom: 10px;">
-                    <strong>Auto-backup:</strong> Últimos salvamentos:
-                </p>
-                <div id="autoBackupList" style="font-size: 0.85rem; color: #999;">
-                    Carregando...
-                </div>
-            </div>
 
             <button class="backup-btn danger" onclick="confirmReset()">
                 <span>🗑️</span> Limpar Todos os Dados
@@ -707,80 +1134,452 @@
     </div>
 
     <script>
- // Registro do Service Worker (corrigido para GitHub Pages)
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    // Caminho absoluto baseado na URL atual
-    const swPath = '/Controle-fiado-chatbot/sw.js';
-    
-    console.log('[App] Registrando SW em:', swPath);
-    
-    navigator.serviceWorker.register(swPath)
-      .then(registration => {
-        console.log('[App] SW registrado:', registration.scope);
-        
-        // Força atualização se houver novo SW esperando
-        if (registration.waiting) {
-          registration.waiting.postMessage('skipWaiting');
-        }
-      })
-      .catch(error => {
-        console.error('[App] Falha ao registrar SW:', error);
-      });
-      
-    // Recarrega quando novo SW ativar
-    let refreshing = false;
-    navigator.serviceWorker.addEventListener('controllerchange', () => {
-      if (refreshing) return;
-      refreshing = true;
-      window.location.reload();
-    });
-  });
-}
+        // ==================== CONFIGURAÇÕES GLOBAIS ====================
+        const DB_KEY = 'fiadoBot_data';
+        const BACKUP_KEY = 'fiadoBot_backups';
+        const SETTINGS_KEY = 'fiadoBot_settings';
+        const PIN_KEY = 'fiadoBot_pin';
+        const RECENT_CMDS_KEY = 'fiadoBot_recent';
 
+        let currentPin = '';
+        let isSettingPin = false;
+        let tempPin = '';
+        let privacyMode = false;
 
-        // Controle de instalação PWA
-        let deferredPrompt;
-        const installBanner = document.getElementById('installBanner');
-
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            installBanner.classList.add('show');
+        // ==================== INICIALIZAÇÃO ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSettings();
+            checkPinProtection();
+            updateRecentCommands();
+            setupSwipeGestures();
+            setupAutocomplete();
         });
 
-        window.addEventListener('appinstalled', () => {
-            installBanner.classList.remove('show');
-            deferredPrompt = null;
-            showStatus('✅ App instalado com sucesso!', 'success');
-        });
+        // ==================== TEMA ESCURO ====================
+        function loadSettings() {
+            const settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
+            
+            if (settings.darkMode) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                document.getElementById('themeToggle').classList.add('active');
+            }
+            
+            if (settings.privacyMode) {
+                privacyMode = true;
+                document.getElementById('privacyToggle').classList.add('active');
+                applyPrivacyMode();
+            }
 
-        function installApp() {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        console.log('Usuário aceitou instalação');
-                    }
-                    deferredPrompt = null;
-                });
+            if (settings.pinProtection) {
+                document.getElementById('pinToggle').classList.add('active');
             }
         }
 
-        // Detecção de offline/online
-        window.addEventListener('online', () => {
-            document.getElementById('offlineIndicator').classList.remove('show');
-            showStatus('🌐 Conectado!', 'success');
-        });
+        function saveSettings(settings) {
+            localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+        }
 
-        window.addEventListener('offline', () => {
-            document.getElementById('offlineIndicator').classList.add('show');
-        });
+        function getSettings() {
+            return JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
+        }
 
-        // Banco de dados
-        const DB_KEY = 'fiadoBot_data';
-        const BACKUP_KEY = 'fiadoBot_backups';
+        function toggleTheme() {
+            const settings = getSettings();
+            settings.darkMode = !settings.darkMode;
+            saveSettings(settings);
+            
+            if (settings.darkMode) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                document.getElementById('themeToggle').classList.add('active');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+                document.getElementById('themeToggle').classList.remove('active');
+            }
+        }
 
+        // ==================== MODO PRIVACIDADE ====================
+        function togglePrivacy() {
+            privacyMode = !privacyMode;
+            const settings = getSettings();
+            settings.privacyMode = privacyMode;
+            saveSettings(settings);
+            
+            const toggle = document.getElementById('privacyToggle');
+            if (privacyMode) {
+                toggle.classList.add('active');
+            } else {
+                toggle.classList.remove('active');
+            }
+            
+            applyPrivacyMode();
+            showStatus(privacyMode ? '🔒 Modo privacidade ativado' : '👁️ Modo privacidade desativado', 'success');
+        }
+
+        function applyPrivacyMode() {
+            const amounts = document.querySelectorAll('.balance-amount, .total-value');
+            amounts.forEach(el => {
+                if (privacyMode) {
+                    el.dataset.original = el.textContent;
+                    el.textContent = 'R$ •••';
+                    el.classList.add('privacy-blur');
+                } else {
+                    if (el.dataset.original) {
+                        el.textContent = el.dataset.original;
+                    }
+                    el.classList.remove('privacy-blur');
+                }
+            });
+        }
+
+        // ==================== PROTEÇÃO COM PIN ====================
+        function checkPinProtection() {
+            const settings = getSettings();
+            const savedPin = localStorage.getItem(PIN_KEY);
+            
+            if (settings.pinProtection && savedPin) {
+                showLockScreen();
+            } else {
+                hideLockScreen();
+            }
+        }
+
+        function showLockScreen() {
+            const lockScreen = document.getElementById('lockScreen');
+            const lockContent = document.getElementById('lockContent');
+            
+            lockScreen.classList.remove('hidden');
+            
+            // Verificar se suporta biometria
+            if (window.PublicKeyCredential && navigator.credentials) {
+                lockContent.innerHTML = `
+                    <div class="lock-icon">🔐</div>
+                    <div class="lock-title">FiadoBot Protegido</div>
+                    <div class="pin-display" id="pinDisplay">
+                        <div class="pin-dot"></div>
+                        <div class="pin-dot"></div>
+                        <div class="pin-dot"></div>
+                        <div class="pin-dot"></div>
+                    </div>
+                    <div class="pin-error" id="pinError">PIN incorreto</div>
+                    <div class="pin-pad" id="pinPad">
+                        ${[1,2,3,4,5,6,7,8,9].map(n => 
+                            `<button class="pin-btn" onclick="enterPinDigit(${n})">${n}</button>`
+                        ).join('')}
+                        <button class="pin-btn" onclick="useBiometric()">👆</button>
+                        <button class="pin-btn" onclick="enterPinDigit(0)">0</button>
+                        <button class="pin-btn delete" onclick="deletePinDigit()">⌫</button>
+                    </div>
+                `;
+                
+                // Tentar biometria automaticamente
+                setTimeout(useBiometric, 500);
+            } else {
+                renderPinPad();
+            }
+        }
+
+        function renderPinPad() {
+            const lockContent = document.getElementById('lockContent');
+            lockContent.innerHTML = `
+                <div class="lock-icon">🔐</div>
+                <div class="lock-title">Digite seu PIN</div>
+                <div class="pin-display" id="pinDisplay">
+                    <div class="pin-dot"></div>
+                    <div class="pin-dot"></div>
+                    <div class="pin-dot"></div>
+                    <div class="pin-dot"></div>
+                </div>
+                <div class="pin-error" id="pinError">PIN incorreto</div>
+                <div class="pin-pad" id="pinPad">
+                    ${[1,2,3,4,5,6,7,8,9].map(n => 
+                        `<button class="pin-btn" onclick="enterPinDigit(${n})">${n}</button>`
+                    ).join('')}
+                    <div></div>
+                    <button class="pin-btn" onclick="enterPinDigit(0)">0</button>
+                    <button class="pin-btn delete" onclick="deletePinDigit()">⌫</button>
+                </div>
+            `;
+        }
+
+        function enterPinDigit(digit) {
+            if (currentPin.length < 4) {
+                currentPin += digit;
+                updatePinDisplay();
+                
+                if (currentPin.length === 4) {
+                    setTimeout(validatePin, 200);
+                }
+            }
+        }
+
+        function deletePinDigit() {
+            currentPin = currentPin.slice(0, -1);
+            updatePinDisplay();
+            document.getElementById('pinError').classList.remove('show');
+        }
+
+        function updatePinDisplay() {
+            const dots = document.querySelectorAll('.pin-dot');
+            dots.forEach((dot, i) => {
+                if (i < currentPin.length) {
+                    dot.classList.add('filled');
+                } else {
+                    dot.classList.remove('filled');
+                }
+            });
+        }
+
+        function validatePin() {
+            const savedPin = localStorage.getItem(PIN_KEY);
+            
+            if (isSettingPin) {
+                if (!tempPin) {
+                    tempPin = currentPin;
+                    currentPin = '';
+                    updatePinDisplay();
+                    document.querySelector('.lock-title').textContent = 'Confirme o PIN';
+                } else {
+                    if (tempPin === currentPin) {
+                        localStorage.setItem(PIN_KEY, currentPin);
+                        const settings = getSettings();
+                        settings.pinProtection = true;
+                        saveSettings(settings);
+                        hideLockScreen();
+                        showStatus('🔐 PIN configurado com sucesso!', 'success');
+                        isSettingPin = false;
+                        tempPin = '';
+                    } else {
+                        document.getElementById('pinError').textContent = 'PINs não conferem';
+                        document.getElementById('pinError').classList.add('show');
+                        currentPin = '';
+                        tempPin = '';
+                        updatePinDisplay();
+                    }
+                }
+            } else {
+                if (currentPin === savedPin) {
+                    hideLockScreen();
+                } else {
+                    document.getElementById('pinError').classList.add('show');
+                    currentPin = '';
+                    updatePinDisplay();
+                    
+                    // Vibrar em erro (se suportado)
+                    if (navigator.vibrate) {
+                        navigator.vibrate([50, 100, 50]);
+                    }
+                }
+            }
+        }
+
+        async function useBiometric() {
+            try {
+                const publicKey = {
+                    challenge: new Uint8Array(32),
+                    rp: { name: 'FiadoBot' },
+                    user: {
+                        id: new Uint8Array(16),
+                        name: 'user',
+                        displayName: 'User'
+                    },
+                    pubKeyCredParams: [{ alg: -7, type: 'public-key' }],
+                    authenticatorSelection: {
+                        authenticatorAttachment: 'platform',
+                        userVerification: 'required'
+                    },
+                    timeout: 60000
+                };
+                
+                await navigator.credentials.get({ publicKey });
+                hideLockScreen();
+            } catch (err) {
+                console.log('Biometria falhou ou não suportada:', err);
+            }
+        }
+
+        function hideLockScreen() {
+            document.getElementById('lockScreen').classList.add('hidden');
+            currentPin = '';
+        }
+
+        function togglePinProtection() {
+            const settings = getSettings();
+            const savedPin = localStorage.getItem(PIN_KEY);
+            
+            if (settings.pinProtection) {
+                // Desativar
+                if (confirm('Deseja remover a proteção com PIN?')) {
+                    localStorage.removeItem(PIN_KEY);
+                    settings.pinProtection = false;
+                    saveSettings(settings);
+                    document.getElementById('pinToggle').classList.remove('active');
+                    showStatus('🔓 Proteção removida', 'success');
+                }
+            } else {
+                // Ativar
+                isSettingPin = true;
+                showLockScreen();
+                document.querySelector('.lock-title').textContent = 'Crie um PIN de 4 dígitos';
+            }
+            
+            closeModal(null, 'backupModal');
+        }
+
+        // ==================== AUTOCOMPLETE ====================
+        function setupAutocomplete() {
+            const input = document.getElementById('commandInput');
+            const list = document.getElementById('autocompleteList');
+            
+            input.addEventListener('input', (e) => {
+                const value = e.target.value.toLowerCase().trim();
+                if (value.length < 1) {
+                    list.classList.remove('show');
+                    return;
+                }
+                
+                const db = getDatabase();
+                const clients = Object.keys(db);
+                const matches = clients.filter(name => name.toLowerCase().startsWith(value));
+                
+                if (matches.length > 0) {
+                    list.innerHTML = matches.map(name => {
+                        const balance = db[name].balance;
+                        const balanceClass = balance > 0 ? 'negative' : '';
+                        return `
+                            <div class="autocomplete-item" onclick="selectClient('${name}')">
+                                <span>${name.charAt(0).toUpperCase() + name.slice(1)}</span>
+                                <span class="balance ${balanceClass}">${formatCurrency(balance)}</span>
+                            </div>
+                        `;
+                    }).join('');
+                    list.classList.add('show');
+                } else {
+                    list.classList.remove('show');
+                }
+            });
+            
+            // Fechar ao clicar fora
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.autocomplete-container')) {
+                    list.classList.remove('show');
+                }
+            });
+        }
+
+        function selectClient(name) {
+            const input = document.getElementById('commandInput');
+            const parts = input.value.split(' ');
+            parts[0] = name;
+            input.value = parts.join(' ');
+            document.getElementById('autocompleteList').classList.remove('show');
+            input.focus();
+        }
+
+        // ==================== SWIPE GESTURES ====================
+        function setupSwipeGestures() {
+            const container = document.getElementById('chatContainer');
+            let startX = 0;
+            let currentX = 0;
+            let currentElement = null;
+            
+            container.addEventListener('touchstart', handleTouchStart, { passive: true });
+            container.addEventListener('touchmove', handleTouchMove, { passive: true });
+            container.addEventListener('touchend', handleTouchEnd);
+            
+            function handleTouchStart(e) {
+                const message = e.target.closest('.message');
+                if (!message || message.classList.contains('user-message')) return;
+                
+                startX = e.touches[0].clientX;
+                currentElement = message;
+                currentElement.classList.add('swiping');
+            }
+            
+            function handleTouchMove(e) {
+                if (!currentElement) return;
+                
+                currentX = e.touches[0].clientX;
+                const diff = currentX - startX;
+                
+                // Limitar movimento
+                if (Math.abs(diff) < 100) {
+                    currentElement.style.transform = `translateX(${diff}px)`;
+                }
+            }
+            
+            function handleTouchEnd(e) {
+                if (!currentElement) return;
+                
+                const diff = currentX - startX;
+                const threshold = 80;
+                
+                if (diff > threshold) {
+                    // Swipe direita - editar
+                    showEditAction(currentElement);
+                } else if (diff < -threshold) {
+                    // Swipe esquerda - deletar
+                    showDeleteAction(currentElement);
+                } else {
+                    // Voltar ao lugar
+                    currentElement.style.transform = '';
+                }
+                
+                currentElement.classList.remove('swiping');
+                currentElement = null;
+                startX = 0;
+                currentX = 0;
+            }
+        }
+
+        function showEditAction(element) {
+            element.style.transform = 'translateX(60px)';
+            // Implementar edição se necessário
+            setTimeout(() => {
+                element.style.transform = '';
+            }, 2000);
+        }
+
+        function showDeleteAction(element) {
+            element.style.transform = 'translateX(-60px)';
+            // Implementar exclusão se necessário
+            setTimeout(() => {
+                element.style.transform = '';
+            }, 2000);
+        }
+
+        // ==================== COMANDOS RECENTES ====================
+        function addRecentCommand(command) {
+            let recent = JSON.parse(localStorage.getItem(RECENT_CMDS_KEY) || '[]');
+            
+            // Remover duplicados
+            recent = recent.filter(cmd => cmd !== command);
+            
+            // Adicionar no início
+            recent.unshift(command);
+            
+            // Manter apenas 5
+            recent = recent.slice(0, 5);
+            
+            localStorage.setItem(RECENT_CMDS_KEY, JSON.stringify(recent));
+            updateRecentCommands();
+        }
+
+        function updateRecentCommands() {
+            const container = document.getElementById('recentCommands');
+            const recent = JSON.parse(localStorage.getItem(RECENT_CMDS_KEY) || '[]');
+            
+            if (recent.length === 0) {
+                container.style.display = 'none';
+                return;
+            }
+            
+            container.style.display = 'flex';
+            container.innerHTML = recent.map(cmd => `
+                <button class="recent-cmd" onclick="executeCommand('${cmd}')">${cmd}</button>
+            `).join('');
+        }
+
+        // ==================== BANCO DE DADOS ====================
         function getDatabase() {
             const data = localStorage.getItem(DB_KEY);
             return data ? JSON.parse(data) : {};
@@ -795,9 +1594,7 @@ if ('serviceWorker' in navigator) {
         function showAutoSaveIndicator() {
             const indicator = document.getElementById('autoSaveIndicator');
             indicator.classList.add('show');
-            setTimeout(() => {
-                indicator.classList.remove('show');
-            }, 2000);
+            setTimeout(() => indicator.classList.remove('show'), 2000);
         }
 
         function createAutoBackup() {
@@ -814,27 +1611,9 @@ if ('serviceWorker' in navigator) {
             if (backups.length > 10) backups.pop();
             
             localStorage.setItem(BACKUP_KEY, JSON.stringify(backups));
-            updateBackupList();
         }
 
-        function updateBackupList() {
-            const list = document.getElementById('autoBackupList');
-            const backups = JSON.parse(localStorage.getItem(BACKUP_KEY) || '[]');
-            
-            if (backups.length === 0) {
-                list.innerHTML = 'Nenhum backup automático ainda';
-                return;
-            }
-
-            list.innerHTML = backups.map((b, i) => {
-                const date = new Date(b.date).toLocaleString('pt-BR');
-                const entries = Object.keys(b.data).length;
-                return `<div style="margin: 5px 0; padding: 5px; background: #f5f5f5; border-radius: 5px;">
-                    ${i === 0 ? '💾' : '•'} ${date} - ${entries} clientes
-                </div>`;
-            }).join('');
-        }
-
+        // ==================== MENSAGENS ====================
         function addMessage(text, type = 'bot') {
             const container = document.getElementById('chatContainer');
             const messageDiv = document.createElement('div');
@@ -842,6 +1621,11 @@ if ('serviceWorker' in navigator) {
             messageDiv.innerHTML = text;
             container.appendChild(messageDiv);
             container.scrollTop = container.scrollHeight;
+            
+            // Aplicar privacidade se ativo
+            if (privacyMode) {
+                setTimeout(applyPrivacyMode, 100);
+            }
         }
 
         function formatCurrency(value) {
@@ -861,6 +1645,7 @@ if ('serviceWorker' in navigator) {
             });
         }
 
+        // ==================== PROCESSAMENTO DE COMANDOS ====================
         function processCommand() {
             const input = document.getElementById('commandInput');
             const command = input.value.trim().toLowerCase();
@@ -868,11 +1653,11 @@ if ('serviceWorker' in navigator) {
             if (!command) return;
 
             addMessage(input.value, 'user');
+            addRecentCommand(input.value);
             input.value = '';
+            document.getElementById('autocompleteList').classList.remove('show');
 
-            setTimeout(() => {
-                executeCommand(command);
-            }, 300);
+            setTimeout(() => executeCommand(command), 300);
         }
 
         function executeCommand(command) {
@@ -903,8 +1688,8 @@ if ('serviceWorker' in navigator) {
                 return;
             }
 
-            if (command === 'instalar' || command === 'install') {
-                installApp();
+            if (command === 'tema') {
+                toggleTheme();
                 return;
             }
 
@@ -1021,7 +1806,7 @@ if ('serviceWorker' in navigator) {
                         <span class="client-name">👤 ${name.charAt(0).toUpperCase() + name.slice(1)}</span>
                         <span class="balance-amount ${balanceClass}">${formatCurrency(data.balance)}</span>
                     </div>
-                    ${data.balance > 0 ? '<span style="color: #e53935; font-size: 0.9rem;">🔴 Deve pagar</span>' : '<span style="color: #43a047; font-size: 0.9rem;">🟢 Em dia</span>'}
+                    ${data.balance > 0 ? '<span style="color: var(--danger); font-size: 0.9rem;">🔴 Deve pagar</span>' : '<span style="color: var(--success); font-size: 0.9rem;">🟢 Em dia</span>'}
                     ${transactionsHtml}
                 </div>
             `, 'bot');
@@ -1038,7 +1823,7 @@ if ('serviceWorker' in navigator) {
 
             let totalReceber = 0;
             let html = '<div style="margin: -12px -16px; padding: 12px 16px;">';
-            html += '<h3 style="margin-bottom: 15px; color: #333;">👥 Clientes</h3>';
+            html += '<h3 style="margin-bottom: 15px; color: var(--text-primary);">👥 Clientes</h3>';
 
             const sortedClients = clients.sort((a, b) => db[b].balance - db[a].balance);
 
@@ -1053,7 +1838,7 @@ if ('serviceWorker' in navigator) {
                             <span class="client-name">${name.charAt(0).toUpperCase() + name.slice(1)}</span>
                             <span class="balance-amount ${balanceClass}">${formatCurrency(data.balance)}</span>
                         </div>
-                        <div style="font-size: 0.85rem; color: #666; margin-top: 5px;">
+                        <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 5px;">
                             ${data.transactions.length} movimentações
                         </div>
                     </div>
@@ -1091,24 +1876,24 @@ if ('serviceWorker' in navigator) {
 
             const html = `
                 <div class="total-summary" style="margin: -12px -16px; padding: 20px;">
-                    <h3 style="margin-bottom: 20px; color: #333;">📊 Resumo Geral</h3>
+                    <h3 style="margin-bottom: 20px; color: var(--text-primary);">📊 Resumo Geral</h3>
                     
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
-                        <div style="background: #f5f5f5; padding: 15px; border-radius: 10px;">
-                            <div style="font-size: 0.9rem; color: #666;">Total a Receber</div>
-                            <div style="font-size: 1.5rem; font-weight: 700; color: ${totalReceber > 0 ? '#e53935' : '#43a047'};">
+                        <div style="background: var(--bg-input); padding: 15px; border-radius: 10px;">
+                            <div style="font-size: 0.9rem; color: var(--text-secondary);">Total a Receber</div>
+                            <div style="font-size: 1.5rem; font-weight: 700; color: ${totalReceber > 0 ? 'var(--danger)' : 'var(--success)'};">
                                 ${formatCurrency(totalReceber)}
                             </div>
                         </div>
-                        <div style="background: #f5f5f5; padding: 15px; border-radius: 10px;">
-                            <div style="font-size: 0.9rem; color: #666;">Clientes</div>
-                            <div style="font-size: 1.5rem; font-weight: 700; color: #667eea;">
+                        <div style="background: var(--bg-input); padding: 15px; border-radius: 10px;">
+                            <div style="font-size: 0.9rem; color: var(--text-secondary);">Clientes</div>
+                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">
                                 ${clients.length}
                             </div>
                         </div>
                     </div>
 
-                    <div style="text-align: left; font-size: 0.95rem; color: #666;">
+                    <div style="text-align: left; font-size: 0.95rem; color: var(--text-secondary);">
                         <div style="margin: 8px 0;">🔴 Devendo: <strong>${totalClientesDevedores}</strong></div>
                         ${maiorDevedor.value > 0 ? `<div style="margin: 8px 0;">⚠️ Maior devedor: <strong>${maiorDevedor.name}</strong> (${formatCurrency(maiorDevedor.value)})</div>` : ''}
                     </div>
@@ -1132,13 +1917,19 @@ if ('serviceWorker' in navigator) {
             `;
         }
 
+        // ==================== MODAIS ====================
         function showHelp() {
             document.getElementById('helpModal').style.display = 'block';
         }
 
         function showBackup() {
+            // Atualizar toggles
+            const settings = getSettings();
+            document.getElementById('themeToggle').classList.toggle('active', settings.darkMode);
+            document.getElementById('privacyToggle').classList.toggle('active', settings.privacyMode);
+            document.getElementById('pinToggle').classList.toggle('active', settings.pinProtection);
+            
             document.getElementById('backupModal').style.display = 'block';
-            updateBackupList();
         }
 
         function closeModal(event, modalId) {
@@ -1147,6 +1938,7 @@ if ('serviceWorker' in navigator) {
             }
         }
 
+        // ==================== BACKUP ====================
         function exportData() {
             const db = getDatabase();
             const dataStr = JSON.stringify(db, null, 2);
@@ -1160,7 +1952,6 @@ if ('serviceWorker' in navigator) {
             link.download = fileName;
             link.click();
             
-            createAutoBackup();
             showStatus('✅ Backup exportado!', 'success');
         }
 
@@ -1249,9 +2040,35 @@ if ('serviceWorker' in navigator) {
             
             document.body.appendChild(div);
             
-            setTimeout(() => {
-                div.remove();
-            }, 3000);
+            setTimeout(() => div.remove(), 3000);
+        }
+
+        // ==================== PWA ====================
+        let deferredPrompt;
+        const installBanner = document.getElementById('installBanner');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBanner.classList.add('show');
+        });
+
+        window.addEventListener('appinstalled', () => {
+            installBanner.classList.remove('show');
+            deferredPrompt = null;
+            showStatus('✅ App instalado!', 'success');
+        });
+
+        function installApp() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('Usuário aceitou instalação');
+                    }
+                    deferredPrompt = null;
+                });
+            }
         }
 
         // Event listeners
@@ -1283,8 +2100,14 @@ if ('serviceWorker' in navigator) {
         window.addEventListener('resize', adjustHeight);
         adjustHeight();
 
-        // Inicializar
-        updateBackupList();
+        // Online/offline
+        window.addEventListener('online', () => {
+            document.getElementById('offlineIndicator').classList.remove('show');
+        });
+
+        window.addEventListener('offline', () => {
+            document.getElementById('offlineIndicator').classList.add('show');
+        });
     </script>
 </body>
 </html>
