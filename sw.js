@@ -1,5 +1,5 @@
 // sw.js - Corrigido para: blecauth.github.io/Controle-fiado-chatbot/
-const CACHE_NAME = 'fiadobot-v1.2';
+const CACHE_NAME = 'fiadobot-v1.3';
 const BASE_PATH = '/Controle-fiado-chatbot/';
 
 const STATIC_ASSETS = [
