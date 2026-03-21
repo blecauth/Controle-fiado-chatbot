@@ -3,51 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="theme-color" content="#667eea">
+    <meta name="theme-color" content="#6366f1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="description" content="Controle de vendas fiado - Gerencie clientes e pagamentos">
-    
-    <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152x152.png">
     
     <title>FiadoBot</title>
     <style>
+        /* ===== DESIGN SYSTEM ===== */
         :root {
-            --safe-area-top: env(safe-area-inset-top, 0px);
-            --safe-area-bottom: env(safe-area-inset-bottom, 0px);
-            --safe-area-left: env(safe-area-inset-left, 0px);
-            --safe-area-right: env(safe-area-inset-right, 0px);
-            --primary: #667eea;
-            --secondary: #764ba2;
-            --bg-gradient-start: #667eea;
-            --bg-gradient-end: #764ba2;
-            --text-primary: #333;
-            --text-secondary: #666;
-            --bg-card: white;
-            --bg-input: white;
-            --border-color: #e0e0e0;
-            --success: #4CAF50;
-            --danger: #e53935;
-            --warning: #ff9800;
-            --info: #2196F3;
+            /* Cores Primárias */
+            --primary: #6366f1;
+            --primary-light: #818cf8;
+            --primary-dark: #4f46e5;
+            --primary-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            
+            /* Status */
+            --danger: #ef4444;
+            --danger-light: #fee2e2;
+            --success: #22c55e;
+            --success-light: #dcfce7;
+            --warning: #f59e0b;
+            --warning-light: #fef3c7;
+            --neutral: #6b7280;
+            --neutral-light: #f3f4f6;
+            
+            /* Fundos */
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --surface-elevated: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --text-tertiary: #94a3b8;
+            --border: #e2e8f0;
+            
+            /* Safe Areas */
+            --safe-top: env(safe-area-inset-top, 0px);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+            
+            /* Sombras */
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            
+            /* Bordas */
+            --radius-sm: 8px;
+            --radius: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
         }
 
         [data-theme="dark"] {
-            --primary: #8b9dc3;
-            --secondary: #6b5b95;
-            --bg-gradient-start: #1a1a2e;
-            --bg-gradient-end: #16213e;
-            --text-primary: #ffffff;
-            --text-secondary: #b0b0b0;
-            --bg-card: #2d2d44;
-            --bg-input: #1e1e32;
-            --border-color: #3d3d5c;
-            --success: #66bb6a;
-            --danger: #ef5350;
-            --warning: #ffa726;
-            --info: #64b5f6;
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --surface-elevated: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-tertiary: #64748b;
+            --border: #334155;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.4);
         }
 
         * {
@@ -55,419 +69,497 @@
             padding: 0;
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
 
-        html {
+        html, body {
             height: 100%;
             overflow: hidden;
+            background: var(--bg);
+            color: var(--text-primary);
         }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+        /* ===== APP SHELL ===== */
+        .app {
+            display: flex;
+            flex-direction: column;
             height: 100%;
-            height: -webkit-fill-available;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            padding-top: var(--safe-area-top);
-            padding-bottom: var(--safe-area-bottom);
-            padding-left: var(--safe-area-left);
-            padding-right: var(--safe-area-right);
-            transition: all 0.3s ease;
+            padding-top: var(--safe-top);
+            padding-bottom: var(--safe-bottom);
         }
 
-        /* Splash Screen */
-        .splash-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            transition: opacity 0.5s ease-out;
-        }
-
-        .splash-screen.hide {
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .splash-icon {
-            font-size: 5rem;
-            margin-bottom: 20px;
-            animation: pulse 1.5s infinite;
-        }
-
-        .splash-text {
-            color: white;
-            font-size: 1.5rem;
-            font-weight: 600;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-
-        /* Lock Screen */
-        .lock-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
-            z-index: 10000;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 40px;
-        }
-
-        .lock-screen.hidden {
-            display: none;
-        }
-
-        .lock-icon {
-            font-size: 4rem;
-            margin-bottom: 20px;
-            color: white;
-        }
-
-        .lock-title {
-            color: white;
-            font-size: 1.5rem;
-            margin-bottom: 30px;
-            text-align: center;
-        }
-
-        .pin-display {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-
-        .pin-dot {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            border: 3px solid white;
-            background: transparent;
-            transition: all 0.2s;
-        }
-
-        .pin-dot.filled {
-            background: white;
-        }
-
-        .pin-error {
-            color: #ff6b6b;
-            margin-bottom: 20px;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        .pin-error.show {
-            opacity: 1;
-        }
-
-        .pin-pad {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            max-width: 280px;
-        }
-
-        .pin-btn {
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            border: 2px solid rgba(255,255,255,0.3);
-            background: rgba(255,255,255,0.1);
-            color: white;
-            font-size: 1.5rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-            backdrop-filter: blur(10px);
-        }
-
-        .pin-btn:active {
-            background: rgba(255,255,255,0.3);
-            transform: scale(0.95);
-        }
-
-        .pin-btn.delete {
-            font-size: 1.2rem;
-        }
-
-        .biometric-btn {
-            margin-top: 30px;
-            padding: 15px 30px;
-            background: rgba(255,255,255,0.2);
-            border: 2px solid white;
-            border-radius: 30px;
-            color: white;
-            font-size: 1rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        /* Header */
+        /* ===== HEADER ===== */
         .header {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            padding: 15px 20px;
-            text-align: center;
+            background: var(--primary-gradient);
+            padding: 16px 20px;
+            padding-top: calc(16px + var(--safe-top));
             color: white;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-            flex-shrink: 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            box-shadow: var(--shadow);
+            z-index: 100;
         }
 
-        .header h1 {
-            font-size: 1.5rem;
-            font-weight: 600;
+        .header-content {
             display: flex;
             align-items: center;
-            gap: 10px;
-            flex: 1;
+            justify-content: space-between;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.2);
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
             justify-content: center;
+            font-size: 1.5rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-text h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .header-text p {
+            font-size: 0.75rem;
+            opacity: 0.9;
+            margin: 0;
         }
 
         .header-actions {
             display: flex;
-            gap: 10px;
+            gap: 8px;
         }
 
-        .header-btn {
+        .icon-btn {
             width: 40px;
             height: 40px;
-            border-radius: 50%;
+            border-radius: var(--radius);
             border: none;
-            background: rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.15);
             color: white;
-            font-size: 1.2rem;
+            font-size: 1.25rem;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.2s;
+            backdrop-filter: blur(10px);
         }
 
-        .header-btn:active {
+        .icon-btn:active {
             background: rgba(255,255,255,0.3);
             transform: scale(0.95);
         }
 
-        .install-banner {
-            background: #4CAF50;
-            color: white;
-            padding: 12px 20px;
-            display: none;
-            align-items: center;
-            justify-content: space-between;
-            animation: slideDown 0.3s ease;
-        }
-
-        .install-banner.show {
+        /* ===== TABS ===== */
+        .tabs {
             display: flex;
-        }
-
-        @keyframes slideDown {
-            from { transform: translateY(-100%); }
-            to { transform: translateY(0); }
-        }
-
-        .install-btn {
-            background: white;
-            color: #4CAF50;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        /* Quick Actions */
-        .quick-actions {
-            display: flex;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 0 16px;
             gap: 8px;
-            padding: 10px 15px;
-            background: rgba(255, 255, 255, 0.1);
             overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            flex-shrink: 0;
+            scrollbar-width: none;
         }
 
-        .quick-btn {
-            padding: 8px 16px;
-            background: rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 20px;
-            color: white;
-            font-size: 0.85rem;
-            white-space: nowrap;
+        .tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab {
+            padding: 12px 16px;
+            border: none;
+            background: none;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            font-weight: 500;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+            position: relative;
             transition: all 0.2s;
         }
 
-        .quick-btn:active {
-            background: rgba(255,255,255,0.3);
-            transform: scale(0.95);
+        .tab.active {
+            color: var(--primary);
         }
 
-        /* Autocomplete Dropdown */
-        .autocomplete-container {
-            position: relative;
-            flex: 1;
-        }
-
-        .autocomplete-list {
+        .tab.active::after {
+            content: '';
             position: absolute;
-            bottom: 100%;
+            bottom: 0;
             left: 0;
             right: 0;
-            background: var(--bg-card);
-            border-radius: 15px;
-            box-shadow: 0 -4px 20px rgba(0,0,0,0.2);
-            max-height: 200px;
-            overflow-y: auto;
-            display: none;
-            z-index: 100;
-            margin-bottom: 10px;
+            height: 2px;
+            background: var(--primary);
+            border-radius: 2px 2px 0 0;
         }
 
-        .autocomplete-list.show {
+        .tab-badge {
+            background: var(--danger);
+            color: white;
+            font-size: 0.625rem;
+            padding: 2px 6px;
+            border-radius: 10px;
+            min-width: 18px;
+            text-align: center;
+        }
+
+        /* ===== CONTENT AREA ===== */
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            padding: 16px;
+        }
+
+        .view {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .view.active {
             display: block;
         }
 
-        .autocomplete-item {
-            padding: 12px 15px;
-            cursor: pointer;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: var(--text-primary);
-        }
-
-        .autocomplete-item:last-child {
-            border-bottom: none;
-        }
-
-        .autocomplete-item:active {
-            background: rgba(102, 126, 234, 0.1);
-        }
-
-        .autocomplete-item .balance {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-        }
-
-        .autocomplete-item .balance.positive {
-            color: var(--success);
-        }
-
-        .autocomplete-item .balance.negative {
-            color: var(--danger);
-        }
-
-        /* Main Container */
-        .main-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            position: relative;
-            min-height: 0;
-        }
-
-        .chat-container {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            scroll-behavior: smooth;
-            -webkit-overflow-scrolling: touch;
-            padding-bottom: 20px;
-        }
-
-        /* Messages */
-        .message {
-            max-width: 85%;
-            padding: 12px 16px;
-            border-radius: 20px;
-            font-size: 0.95rem;
-            line-height: 1.4;
-            animation: slideIn 0.3s ease-out;
-            word-wrap: break-word;
-            position: relative;
-        }
-
-        @keyframes slideIn {
+        @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .bot-message {
-            align-self: flex-start;
-            background: var(--bg-card);
-            color: var(--text-primary);
-            border-bottom-left-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        /* ===== CARDS ===== */
+        .card {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+            margin-bottom: 16px;
         }
 
-        .user-message {
-            align-self: flex-end;
-            background: var(--success);
-            color: white;
-            border-bottom-right-radius: 5px;
-        }
-
-        .error-message {
-            background: #ffebee;
-            color: #c62828;
-            border-left: 4px solid #c62828;
-        }
-
-        .success-message {
-            background: #e8f5e9;
-            color: #2e7d32;
-            border-left: 4px solid var(--success);
-        }
-
-        .info-message {
-            background: #e3f2fd;
-            color: #1565c0;
-            border-left: 4px solid #2196F3;
-        }
-
-        /* Input Container */
-        .input-container {
-            background: var(--bg-card);
-            padding: 12px 15px;
-            padding-bottom: calc(12px + var(--safe-area-bottom));
-            border-top: 1px solid var(--border-color);
+        .card-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
             display: flex;
-            gap: 10px;
             align-items: center;
-            flex-shrink: 0;
+            justify-content: space-between;
+        }
+
+        .card-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .card-body {
+            padding: 16px 20px;
+        }
+
+        /* ===== METRICS GRID ===== */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .metric-card {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            padding: 16px 12px;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--neutral);
+        }
+
+        .metric-card.danger::before { background: var(--danger); }
+        .metric-card.success::before { background: var(--success); }
+        .metric-card.warning::before { background: var(--warning); }
+
+        .metric-icon {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+        }
+
+        .metric-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .metric-label {
+            font-size: 0.625rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* ===== CLIENT LIST ===== */
+        .client-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .client-item {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            padding: 16px 20px;
+            box-shadow: var(--shadow-sm);
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .client-item:active {
+            transform: scale(0.98);
+            box-shadow: var(--shadow);
+        }
+
+        .client-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--neutral);
+        }
+
+        .client-item.debt::before { background: var(--danger); }
+        .client-item.credit::before { background: var(--success); }
+
+        .client-main {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .client-info h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .client-meta {
+            display: flex;
+            gap: 12px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .client-meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .client-balance {
+            text-align: right;
+        }
+
+        .client-balance .amount {
+            font-size: 1.125rem;
+            font-weight: 700;
+        }
+
+        .client-balance .amount.debt { color: var(--danger); }
+        .client-balance .amount.credit { color: var(--success); }
+        .client-balance .amount.zero { color: var(--neutral); }
+
+        .client-balance .label {
+            font-size: 0.625rem;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+        }
+
+        .client-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border);
+        }
+
+        .action-btn-small {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            transition: all 0.2s;
+        }
+
+        .action-btn-small.primary {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+        }
+
+        .action-btn-small.success {
+            background: var(--success-light);
+            color: var(--success);
+        }
+
+        .action-btn-small.danger {
+            background: var(--danger-light);
+            color: var(--danger);
+        }
+
+        .action-btn-small:active {
+            transform: scale(0.95);
+            opacity: 0.8;
+        }
+
+        /* ===== TIMELINE ===== */
+        .timeline {
+            position: relative;
+            padding-left: 24px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--border);
+        }
+
+        .timeline-date {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+            margin-left: -24px;
+            padding-left: 24px;
+            position: relative;
+        }
+
+        .timeline-date::before {
+            content: '';
+            position: absolute;
+            left: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 8px;
+            background: var(--text-secondary);
+            border-radius: 50%;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 16px;
+            padding-left: 16px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -20px;
+            top: 4px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid var(--surface);
+            box-shadow: 0 0 0 2px var(--border);
+        }
+
+        .timeline-item.sale::before {
+            background: var(--danger);
+            box-shadow: 0 0 0 2px var(--danger-light);
+        }
+
+        .timeline-item.payment::before {
+            background: var(--success);
+            box-shadow: 0 0 0 2px var(--success-light);
+        }
+
+        .timeline-item.credit::before {
+            background: var(--warning);
+            box-shadow: 0 0 0 2px var(--warning-light);
+        }
+
+        .timeline-content {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 12px 16px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .timeline-client {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .timeline-amount {
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .timeline-amount.sale { color: var(--danger); }
+        .timeline-amount.payment { color: var(--success); }
+        .timeline-amount.credit { color: var(--warning); }
+
+        .timeline-desc {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        /* ===== QUICK INPUT ===== */
+        .quick-input {
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            padding: 12px 16px;
+            padding-bottom: calc(12px + var(--safe-bottom));
+        }
+
+        .input-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
         }
 
         .input-wrapper {
@@ -475,20 +567,21 @@
             position: relative;
         }
 
-        #commandInput {
+        .main-input {
             width: 100%;
-            padding: 12px 15px;
-            border: 2px solid var(--border-color);
-            border-radius: 25px;
+            padding: 14px 18px;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-xl);
             font-size: 1rem;
-            outline: none;
-            transition: all 0.3s;
-            background: var(--bg-input);
+            background: var(--bg);
             color: var(--text-primary);
+            outline: none;
+            transition: all 0.2s;
         }
 
-        #commandInput:focus {
+        .main-input:focus {
             border-color: var(--primary);
+            background: var(--surface);
         }
 
         .send-btn {
@@ -496,1720 +589,927 @@
             height: 50px;
             border-radius: 50%;
             border: none;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            background: var(--primary-gradient);
             color: white;
-            font-size: 1.2rem;
+            font-size: 1.25rem;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: transform 0.2s, box-shadow 0.2s;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            box-shadow: var(--shadow);
+            transition: all 0.2s;
             flex-shrink: 0;
         }
 
         .send-btn:active {
             transform: scale(0.95);
+            box-shadow: var(--shadow-sm);
         }
 
-        /* Cards */
-        .balance-card {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            border-radius: 15px;
-            padding: 15px;
-            margin: 10px 0;
-            border-left: 5px solid var(--primary);
-            position: relative;
-        }
-
-        [data-theme="dark"] .balance-card {
-            background: linear-gradient(135deg, #2d2d44 0%, #1e1e32 100%);
-        }
-
-        .balance-card.credit {
-            border-left-color: var(--success);
-        }
-
-        .balance-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-
-        .client-name {
-            font-weight: 600;
-            color: var(--text-primary);
-            font-size: 1.1rem;
-        }
-
-        .balance-amount {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: var(--primary);
-        }
-
-        .balance-amount.negative {
-            color: var(--danger);
-        }
-
-        .balance-amount.positive {
-            color: var(--success);
-        }
-
-        .credit-badge {
-            display: inline-block;
-            background: var(--success);
-            color: white;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            margin-left: 5px;
-        }
-
-        .client-info {
-            margin-top: 8px;
-            padding-top: 8px;
-            border-top: 1px solid rgba(0,0,0,0.1);
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-        }
-
-        [data-theme="dark"] .client-info {
-            border-top-color: rgba(255,255,255,0.1);
-        }
-
-        .client-actions {
+        /* ===== SUGGESTIONS ===== */
+        .suggestions {
             display: flex;
             gap: 8px;
-            margin-top: 10px;
-        }
-
-        .client-action-btn {
-            flex: 1;
-            padding: 8px;
-            border: none;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-            transition: all 0.2s;
-        }
-
-        .client-action-btn.edit {
-            background: var(--info);
-            color: white;
-        }
-
-        .client-action-btn.whatsapp {
-            background: #25D366;
-            color: white;
-        }
-
-        .client-action-btn.delete {
-            background: var(--danger);
-            color: white;
-        }
-
-        .client-action-btn:active {
-            transform: scale(0.95);
-            opacity: 0.8;
-        }
-
-        .transaction-list {
-            margin-top: 10px;
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-        }
-
-        .transaction-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 5px 0;
-            border-bottom: 1px solid rgba(0,0,0,0.05);
-        }
-
-        [data-theme="dark"] .transaction-item {
-            border-bottom-color: rgba(255,255,255,0.05);
-        }
-
-        .transaction-item:last-child {
-            border-bottom: none;
-        }
-
-        .date {
-            color: #999;
-            font-size: 0.8rem;
-        }
-
-        /* Modals */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.8);
-            z-index: 1000;
-            padding: 20px;
-            overflow-y: auto;
-            padding-top: calc(20px + var(--safe-area-top));
-            padding-bottom: calc(20px + var(--safe-area-bottom));
-        }
-
-        .modal-content {
-            background: var(--bg-card);
-            border-radius: 20px;
-            padding: 25px;
-            max-width: 400px;
-            margin: 20px auto;
-            animation: slideUp 0.3s ease-out;
-            max-height: 90vh;
-            overflow-y: auto;
-            color: var(--text-primary);
-        }
-
-        @keyframes slideUp {
-            from { transform: translateY(50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        .modal-title {
-            font-size: 1.3rem;
-            color: var(--text-primary);
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 5px;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid var(--border-color);
-            border-radius: 10px;
-            font-size: 1rem;
-            background: var(--bg-input);
-            color: var(--text-primary);
-            outline: none;
-            transition: border-color 0.3s;
-        }
-
-        .form-input:focus {
-            border-color: var(--primary);
-        }
-
-        .command-example {
-            background: var(--bg-input);
-            padding: 12px;
-            border-radius: 10px;
-            margin: 10px 0;
-            font-family: 'Courier New', monospace;
-            font-size: 0.9rem;
-            border-left: 4px solid var(--primary);
-            color: var(--text-primary);
-        }
-
-        .close-btn {
-            width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 1rem;
-            margin-top: 20px;
-            cursor: pointer;
-        }
-
-        .btn-secondary {
-            width: 100%;
-            padding: 12px;
-            background: transparent;
-            color: var(--text-secondary);
-            border: 2px solid var(--border-color);
-            border-radius: 10px;
-            font-size: 1rem;
-            margin-top: 10px;
-            cursor: pointer;
-        }
-
-        .backup-btn {
-            width: 100%;
-            padding: 15px;
-            margin: 10px 0;
-            border: 2px solid var(--primary);
-            background: var(--bg-card);
-            color: var(--primary);
-            border-radius: 12px;
-            font-size: 1rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            transition: all 0.2s;
-        }
-
-        .backup-btn:active {
-            background: var(--primary);
-            color: white;
-            transform: scale(0.98);
-        }
-
-        .backup-btn.danger {
-            border-color: var(--danger);
-            color: var(--danger);
-        }
-
-        .backup-btn.danger:active {
-            background: var(--danger);
-            color: white;
-        }
-
-        .backup-info {
-            background: var(--bg-input);
-            padding: 15px;
-            border-radius: 10px;
-            margin: 15px 0;
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-        }
-
-        .total-summary {
-            background: rgba(255,255,255,0.95);
-            padding: 15px;
-            border-radius: 15px;
-            margin: 10px 0;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-
-        [data-theme="dark"] .total-summary {
-            background: rgba(45,45,68,0.95);
-        }
-
-        .total-label {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            margin-bottom: 5px;
-        }
-
-        .total-value {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--danger);
-        }
-
-        .total-value.positive {
-            color: var(--success);
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            margin-left: 5px;
-        }
-
-        .badge-adc {
-            background: #ffebee;
-            color: #c62828;
-        }
-
-        .badge-pg {
-            background: #e8f5e9;
-            color: #2e7d32;
-        }
-
-        .hidden-input {
-            display: none;
-        }
-
-        .status-bar {
-            position: fixed;
-            top: calc(60px + var(--safe-area-top));
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--success);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 25px;
-            font-size: 0.9rem;
-            z-index: 1001;
-            animation: fadeIn 0.3s ease;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        }
-
-        .status-bar.error {
-            background: var(--danger);
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateX(-50%) translateY(-10px); }
-            to { opacity: 1; transform: translateX(-50%) translateY(0); }
-        }
-
-        .auto-save-indicator {
-            position: fixed;
-            top: calc(10px + var(--safe-area-top));
-            right: 10px;
-            background: rgba(76, 175, 80, 0.9);
-            color: white;
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            opacity: 0;
-            transition: opacity 0.3s;
-            z-index: 100;
-        }
-
-        .auto-save-indicator.show {
-            opacity: 1;
-        }
-
-        .offline-indicator {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            background: #ff9800;
-            color: white;
-            text-align: center;
-            padding: 8px;
-            font-size: 0.85rem;
-            transform: translateY(-100%);
-            transition: transform 0.3s;
-            z-index: 1002;
-        }
-
-        .offline-indicator.show {
-            transform: translateY(0);
-        }
-
-        /* Toggle Switch */
-        .toggle-container {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 15px 0;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .toggle-label {
-            color: var(--text-primary);
-            font-size: 1rem;
-        }
-
-        .toggle-switch {
-            position: relative;
-            width: 50px;
-            height: 28px;
-            background: #ccc;
-            border-radius: 14px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .toggle-switch.active {
-            background: var(--primary);
-        }
-
-        .toggle-slider {
-            position: absolute;
-            top: 2px;
-            left: 2px;
-            width: 24px;
-            height: 24px;
-            background: white;
-            border-radius: 50%;
-            transition: transform 0.3s;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-
-        .toggle-switch.active .toggle-slider {
-            transform: translateX(22px);
-        }
-
-        /* Privacy Mode */
-        .privacy-blur {
-            filter: blur(8px);
-            user-select: none;
-        }
-
-        /* Recent Commands */
-        .recent-commands {
-            display: flex;
-            gap: 8px;
-            padding: 10px 15px;
+            margin-top: 12px;
             overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            background: rgba(255,255,255,0.05);
+            padding-bottom: 4px;
         }
 
-        .recent-cmd {
-            padding: 6px 12px;
-            background: rgba(102, 126, 234, 0.2);
-            border: 1px solid rgba(102, 126, 234, 0.3);
-            border-radius: 15px;
-            color: white;
-            font-size: 0.8rem;
+        .suggestion-chip {
+            padding: 8px 14px;
+            background: var(--neutral-light);
+            border: none;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
             cursor: pointer;
             white-space: nowrap;
             transition: all 0.2s;
         }
 
-        .recent-cmd:active {
-            background: rgba(102, 126, 234, 0.4);
-            transform: scale(0.95);
+        .suggestion-chip:active {
+            background: var(--primary-light);
+            color: var(--primary);
         }
+
+        /* ===== EMPTY STATE ===== */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .empty-desc {
+            font-size: 0.875rem;
+            max-width: 280px;
+            margin: 0 auto;
+        }
+
+        /* ===== MODALS ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            padding: 20px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--surface);
+            border-radius: var(--radius-xl);
+            width: 100%;
+            max-width: 400px;
+            max-height: 90vh;
+            overflow: hidden;
+            animation: modalIn 0.3s ease;
+        }
+
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .modal-body {
+            padding: 20px;
+            overflow-y: auto;
+            max-height: 60vh;
+        }
+
+        .modal-footer {
+            padding: 16px 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary {
+            background: var(--primary-gradient);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: var(--neutral-light);
+            color: var(--text-secondary);
+        }
+
+        .btn-danger {
+            background: var(--danger-light);
+            color: var(--danger);
+        }
+
+        /* ===== FORM ELEMENTS ===== */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 1rem;
+            background: var(--bg);
+            color: var(--text-primary);
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus {
+            border-color: var(--primary);
+            background: var(--surface);
+        }
+
+        /* ===== SEARCH ===== */
+        .search-box {
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 16px 12px 44px;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-xl);
+            font-size: 0.875rem;
+            background: var(--bg);
+            color: var(--text-primary);
+            outline: none;
+        }
+
+        .search-input:focus {
+            border-color: var(--primary);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1rem;
+            color: var(--text-tertiary);
+        }
+
+        /* ===== TOAST ===== */
+        .toast {
+            position: fixed;
+            bottom: calc(100px + var(--safe-bottom));
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--text-primary);
+            color: white;
+            padding: 12px 24px;
+            border-radius: var(--radius-xl);
+            font-size: 0.875rem;
+            font-weight: 500;
+            box-shadow: var(--shadow-lg);
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 2000;
+            pointer-events: none;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .toast.success { background: var(--success); }
+        .toast.error { background: var(--danger); }
+
+        /* ===== UTILITIES ===== */
+        .hidden { display: none !important; }
+        .text-center { text-align: center; }
+        .mb-0 { margin-bottom: 0; }
     </style>
 </head>
 <body>
-    <!-- Lock Screen -->
-    <div class="lock-screen hidden" id="lockScreen">
-        <div class="lock-content" id="lockContent"></div>
-    </div>
-
-    <!-- Splash Screen -->
-    <div class="splash-screen" id="splashScreen">
-        <div class="splash-icon">💰</div>
-        <div class="splash-text">FiadoBot</div>
-    </div>
-
-    <!-- Offline Indicator -->
-    <div class="offline-indicator" id="offlineIndicator">
-        📴 Você está offline - Dados salvos localmente
-    </div>
-
-    <!-- Install Banner -->
-    <div class="install-banner" id="installBanner">
-        <span>📲 Instalar FiadoBot no celular?</span>
-        <button class="install-btn" onclick="installApp()">Instalar</button>
-    </div>
-
-    <div class="auto-save-indicator" id="autoSaveIndicator">💾 Salvo</div>
-
-    <!-- Header -->
-    <div class="header">
-        <div class="header-actions">
-            <button class="header-btn" onclick="togglePrivacy()" title="Modo Privacidade">👁️</button>
-        </div>
-        <h1>
-            <span style="font-size: 1.8rem;">💰</span>
-            FiadoBot
-        </h1>
-        <div class="header-actions">
-            <button class="header-btn" onclick="toggleTheme()" title="Tema Escuro/Claro">🌙</button>
-            <button class="header-btn" onclick="showBackup()" title="Configurações">⚙️</button>
-        </div>
-    </div>
-
-    <!-- Recent Commands -->
-    <div class="recent-commands" id="recentCommands"></div>
-
-    <div class="quick-actions">
-        <button class="quick-btn" onclick="showHelp()">❓ Ajuda</button>
-        <button class="quick-btn" onclick="showAllClients()">👥 Clientes</button>
-        <button class="quick-btn" onclick="showSummary()">📊 Resumo</button>
-        <button class="quick-btn" onclick="showBackup()">💾 Backup</button>
-        <button class="quick-btn" onclick="clearChat()">🧹 Limpar</button>
-    </div>
-
-    <div class="main-container">
-        <div class="chat-container" id="chatContainer">
-            <div class="bot-message message">
-                👋 Olá! Sou seu assistente de controle de vendas fiado.<br><br>
-                <strong>Novidades:</strong><br>
-                • 💳 <b>Saldo positivo:</b> Cliente pode ter crédito<br>
-                • ✏️ <b>Editar clientes:</b> Toque no cliente para alterar<br>
-                • 📱 <b>WhatsApp:</b> Envie comprovantes<br><br>
-                <strong>Como usar:</strong><br>
-                • <code>joao adc 50</code> - Adiciona R$ 50,00<br>
-                • <code>maria pg 30</code> - Registra pagamento<br>
-                • <code>joao pg 100</code> - Se deve 70, fica com 30 de crédito!
+    <div class="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="header-title">
+                    <div class="header-icon">💰</div>
+                    <div class="header-text">
+                        <h1>FiadoBot</h1>
+                        <p>Controle de Vendas</p>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button class="icon-btn" onclick="toggleTheme()" title="Tema">🌙</button>
+                    <button class="icon-btn" onclick="showSettings()" title="Configurações">⚙️</button>
+                </div>
             </div>
-        </div>
+        </header>
 
-        <div class="input-container">
-            <div class="autocomplete-container">
-                <div class="autocomplete-list" id="autocompleteList"></div>
+        <!-- Tabs -->
+        <nav class="tabs">
+            <button class="tab active" onclick="switchTab('dashboard')" data-tab="dashboard">
+                📊 Resumo
+            </button>
+            <button class="tab" onclick="switchTab('clients')" data-tab="clients">
+                👥 Clientes <span class="tab-badge" id="clientCount">0</span>
+            </button>
+            <button class="tab" onclick="switchTab('history')" data-tab="history">
+                📝 Registros
+            </button>
+        </nav>
+
+        <!-- Content -->
+        <main class="content">
+            <!-- Dashboard View -->
+            <div class="view active" id="dashboardView">
+                <div class="metrics-grid">
+                    <div class="metric-card danger">
+                        <div class="metric-icon">📤</div>
+                        <div class="metric-value" id="metricDebt">R$ 0</div>
+                        <div class="metric-label">A Receber</div>
+                    </div>
+                    <div class="metric-card success">
+                        <div class="metric-icon">📥</div>
+                        <div class="metric-value" id="metricCredit">R$ 0</div>
+                        <div class="metric-label">Créditos</div>
+                    </div>
+                    <div class="metric-card warning">
+                        <div class="metric-icon">👥</div>
+                        <div class="metric-value" id="metricClients">0</div>
+                        <div class="metric-label">Clientes</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">⚠️ Atenção</span>
+                    </div>
+                    <div class="card-body" id="attentionList">
+                        <div class="empty-state">
+                            <div class="empty-icon">✅</div>
+                            <div class="empty-title">Tudo em ordem!</div>
+                            <div class="empty-desc">Nenhum cliente com pendências urgentes.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">💎 Top Clientes</span>
+                    </div>
+                    <div class="card-body" id="topClients">
+                        <div class="empty-state">
+                            <div class="empty-icon">👤</div>
+                            <div class="empty-title">Sem dados</div>
+                            <div class="empty-desc">Adicione vendas para ver estatísticas.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Clients View -->
+            <div class="view" id="clientsView">
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" id="clientSearch" placeholder="Buscar cliente..." oninput="filterClients()">
+                </div>
+                <div class="client-list" id="clientList">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- History View -->
+            <div class="view" id="historyView">
+                <div class="timeline" id="timeline">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </main>
+
+        <!-- Quick Input -->
+        <div class="quick-input">
+            <div class="input-row">
                 <div class="input-wrapper">
-                    <input 
-                        type="text" 
-                        id="commandInput" 
-                        placeholder="Ex: joao adc 50" 
-                        autocomplete="off"
-                        autocorrect="off"
-                        autocapitalize="off"
-                    >
+                    <input type="text" class="main-input" id="quickCommand" placeholder="Ex: joao adc 50" onkeypress="if(event.key==='Enter')processQuickCommand()">
+                </div>
+                <button class="send-btn" onclick="processQuickCommand()">➤</button>
+            </div>
+            <div class="suggestions" id="suggestions">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+
+        <!-- Edit Client Modal -->
+        <div class="modal-overlay" id="editModal">
+            <div class="modal">
+                <div class="modal-header">
+                    <div class="modal-title">✏️ Editar Cliente</div>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="editOldName">
+                    <div class="form-group">
+                        <label class="form-label">Nome</label>
+                        <input type="text" class="form-input" id="editName">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Telefone</label>
+                        <input type="tel" class="form-input" id="editPhone" placeholder="(11) 99999-9999">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">WhatsApp</label>
+                        <input type="tel" class="form-input" id="editWhatsApp" placeholder="(11) 99999-9999">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Observações</label>
+                        <input type="text" class="form-input" id="editNotes" placeholder="Endereço, referência...">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="closeModal('editModal')">Cancelar</button>
+                    <button class="btn btn-primary" onclick="saveClient()">Salvar</button>
                 </div>
             </div>
-            <button class="send-btn" onclick="processCommand()">➤</button>
         </div>
-    </div>
 
-    <!-- Help Modal -->
-    <div class="modal" id="helpModal" onclick="closeModal(event, 'helpModal')">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <div class="modal-title">
-                <span>📖</span>
-                Como usar o FiadoBot
-            </div>
-            
-            <p><strong>Adicionar dívida:</strong></p>
-            <div class="command-example">nome adc valor</div>
-            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 15px;">
-                Exemplo: <em>joao adc 50</em><br>
-                Adiciona R$ 50,00 na conta do João
-            </p>
-
-            <p><strong>Registrar pagamento:</strong></p>
-            <div class="command-example">nome pg valor</div>
-            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 15px;">
-                Exemplo: <em>maria pg 30</em><br>
-                Se pagar mais do que deve, vira <b>crédito</b>!
-            </p>
-
-            <p><strong>Gerenciar cliente:</strong></p>
-            <div class="command-example">nome</div>
-            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 15px;">
-                Digite só o nome para ver detalhes e editar
-            </p>
-
-            <button class="close-btn" onclick="closeModal(null, 'helpModal')">Entendi!</button>
-        </div>
-    </div>
-
-    <!-- Edit Client Modal -->
-    <div class="modal" id="editClientModal" onclick="closeModal(event, 'editClientModal')">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <div class="modal-title">
-                <span>✏️</span>
-                Editar Cliente
-            </div>
-            
-            <input type="hidden" id="editClientOldName">
-            
-            <div class="form-group">
-                <label class="form-label">Nome</label>
-                <input type="text" class="form-input" id="editClientName" placeholder="Nome do cliente">
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Telefone</label>
-                <input type="tel" class="form-input" id="editClientPhone" placeholder="(11) 99999-9999">
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">WhatsApp</label>
-                <input type="tel" class="form-input" id="editClientWhatsApp" placeholder="(11) 99999-9999">
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Observações</label>
-                <input type="text" class="form-input" id="editClientNotes" placeholder="Endereço, referência, etc">
-            </div>
-
-            <button class="close-btn" onclick="saveClientEdit()">💾 Salvar Alterações</button>
-            <button class="btn-secondary" onclick="closeModal(null, 'editClientModal')">Cancelar</button>
-        </div>
-    </div>
-
-    <!-- Settings/Backup Modal -->
-    <div class="modal" id="backupModal" onclick="closeModal(event, 'backupModal')">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <div class="modal-title">
-                <span>⚙️</span>
-                Configurações
-            </div>
-
-            <!-- Tema -->
-            <div class="toggle-container">
-                <span class="toggle-label">🌙 Tema Escuro</span>
-                <div class="toggle-switch" id="themeToggle" onclick="toggleTheme()">
-                    <div class="toggle-slider"></div>
+        <!-- Settings Modal -->
+        <div class="modal-overlay" id="settingsModal">
+            <div class="modal">
+                <div class="modal-header">
+                    <div class="modal-title">⚙️ Configurações</div>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <button class="btn btn-primary" onclick="exportData()" style="width:100%;margin-bottom:8px;">📤 Exportar Dados</button>
+                        <input type="file" id="importFile" hidden accept=".json" onchange="importData(this)">
+                        <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()" style="width:100%;margin-bottom:8px;">📥 Importar Dados</button>
+                        <button class="btn btn-danger" onclick="confirmReset()" style="width:100%;">🗑️ Limpar Tudo</button>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="closeModal('settingsModal')">Fechar</button>
                 </div>
             </div>
-
-            <!-- Privacidade -->
-            <div class="toggle-container">
-                <span class="toggle-label">🔒 Modo Privacidade</span>
-                <div class="toggle-switch" id="privacyToggle" onclick="togglePrivacy()">
-                    <div class="toggle-slider"></div>
-                </div>
-            </div>
-
-            <!-- Segurança -->
-            <div class="toggle-container" style="border-bottom: none;">
-                <span class="toggle-label">🔐 Proteção com PIN</span>
-                <div class="toggle-switch" id="pinToggle" onclick="togglePinProtection()">
-                    <div class="toggle-slider"></div>
-                </div>
-            </div>
-
-            <div class="backup-info" style="margin-top: 20px;">
-                <strong>💾 Backup de Dados</strong><br>
-                Exporte seus dados para não perdê-los ao trocar de celular.
-            </div>
-
-            <button class="backup-btn" onclick="exportData()">
-                <span>📤</span> Exportar Backup
-            </button>
-
-            <button class="backup-btn" onclick="document.getElementById('importFile').click()">
-                <span>📥</span> Importar Backup
-            </button>
-            <input type="file" id="importFile" class="hidden-input" accept=".json" onchange="importData(this)">
-
-            <button class="backup-btn" onclick="shareBackup()">
-                <span>📱</span> Compartilhar
-            </button>
-
-            <button class="backup-btn danger" onclick="confirmReset()">
-                <span>🗑️</span> Limpar Todos os Dados
-            </button>
-
-            <button class="close-btn" onclick="closeModal(null, 'backupModal')">Fechar</button>
         </div>
+
+        <!-- Toast -->
+        <div class="toast" id="toast"></div>
     </div>
 
     <script>
-        // ==================== CONFIGURAÇÕES GLOBAIS ====================
-        const DB_KEY = 'fiadobot_data_v2'; // Versão 2 com novos campos
-        const BACKUP_KEY = 'fiadobot_backups';
-        const SETTINGS_KEY = 'fiadobot_settings';
-        const PIN_KEY = 'fiadobot_pin';
-        const RECENT_CMDS_KEY = 'fiadobot_recent';
-
-        let currentPin = '';
-        let isSettingPin = false;
-        let tempPin = '';
-        let privacyMode = false;
-        let currentEditingClient = null;
-
-        // ==================== INICIALIZAÇÃO ====================
-        document.addEventListener('DOMContentLoaded', () => {
-            migrateOldData();
-            loadSettings();
-            checkPinProtection();
-            updateRecentCommands();
-            setupAutocomplete();
-        });
-
-        // ==================== MIGRAÇÃO DE DADOS ====================
-        function migrateOldData() {
-            const oldData = localStorage.getItem('fiadobot_data');
-            if (oldData && !localStorage.getItem(DB_KEY)) {
-                const data = JSON.parse(oldData);
-                // Adicionar novos campos aos clientes existentes
-                for (let name in data) {
-                    if (!data[name].phone) data[name].phone = '';
-                    if (!data[name].whatsapp) data[name].whatsapp = '';
-                    if (!data[name].notes) data[name].notes = '';
-                }
-                localStorage.setItem(DB_KEY, JSON.stringify(data));
-                console.log('Dados migrados para v2');
-            }
-        }
-
-        // ==================== TEMA E CONFIGURAÇÕES ====================
-        function loadSettings() {
-            const settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
-            
-            if (settings.darkMode) {
-                document.documentElement.setAttribute('data-theme', 'dark');
-                document.getElementById('themeToggle').classList.add('active');
-            }
-            
-            if (settings.privacyMode) {
-                privacyMode = true;
-                document.getElementById('privacyToggle').classList.add('active');
-                applyPrivacyMode();
-            }
-
-            if (settings.pinProtection) {
-                document.getElementById('pinToggle').classList.add('active');
-            }
-        }
-
-        function saveSettings(settings) {
-            localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
-        }
-
-        function getSettings() {
-            return JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
-        }
-
-        function toggleTheme() {
-            const settings = getSettings();
-            settings.darkMode = !settings.darkMode;
-            saveSettings(settings);
-            
-            if (settings.darkMode) {
-                document.documentElement.setAttribute('data-theme', 'dark');
-                document.getElementById('themeToggle').classList.add('active');
-            } else {
-                document.documentElement.removeAttribute('data-theme');
-                document.getElementById('themeToggle').classList.remove('active');
-            }
-        }
-
-        function togglePrivacy() {
-            privacyMode = !privacyMode;
-            const settings = getSettings();
-            settings.privacyMode = privacyMode;
-            saveSettings(settings);
-            
-            const toggle = document.getElementById('privacyToggle');
-            if (privacyMode) {
-                toggle.classList.add('active');
-            } else {
-                toggle.classList.remove('active');
-            }
-            
-            applyPrivacyMode();
-            showStatus(privacyMode ? '🔒 Modo privacidade ativado' : '👁️ Modo privacidade desativado', 'success');
-        }
-
-        function applyPrivacyMode() {
-            const amounts = document.querySelectorAll('.balance-amount, .total-value');
-            amounts.forEach(el => {
-                if (privacyMode) {
-                    el.dataset.original = el.textContent;
-                    el.textContent = 'R$ •••';
-                    el.classList.add('privacy-blur');
-                } else {
-                    if (el.dataset.original) {
-                        el.textContent = el.dataset.original;
-                    }
-                    el.classList.remove('privacy-blur');
-                }
-            });
-        }
-
-        // ==================== PROTEÇÃO COM PIN ====================
-        function checkPinProtection() {
-            const settings = getSettings();
-            const savedPin = localStorage.getItem(PIN_KEY);
-            
-            if (settings.pinProtection && savedPin) {
-                showLockScreen();
-            } else {
-                hideLockScreen();
-            }
-        }
-
-        function showLockScreen() {
-            const lockScreen = document.getElementById('lockScreen');
-            const lockContent = document.getElementById('lockContent');
-            
-            lockScreen.classList.remove('hidden');
-            
-            if (window.PublicKeyCredential && navigator.credentials) {
-                lockContent.innerHTML = `
-                    <div class="lock-icon">🔐</div>
-                    <div class="lock-title">FiadoBot Protegido</div>
-                    <div class="pin-display" id="pinDisplay">
-                        <div class="pin-dot"></div>
-                        <div class="pin-dot"></div>
-                        <div class="pin-dot"></div>
-                        <div class="pin-dot"></div>
-                    </div>
-                    <div class="pin-error" id="pinError">PIN incorreto</div>
-                    <div class="pin-pad" id="pinPad">
-                        ${[1,2,3,4,5,6,7,8,9].map(n => 
-                            `<button class="pin-btn" onclick="enterPinDigit(${n})">${n}</button>`
-                        ).join('')}
-                        <button class="pin-btn" onclick="useBiometric()">👆</button>
-                        <button class="pin-btn" onclick="enterPinDigit(0)">0</button>
-                        <button class="pin-btn delete" onclick="deletePinDigit()">⌫</button>
-                    </div>
-                `;
-                
-                setTimeout(useBiometric, 500);
-            } else {
-                renderPinPad();
-            }
-        }
-
-        function renderPinPad() {
-            const lockContent = document.getElementById('lockContent');
-            lockContent.innerHTML = `
-                <div class="lock-icon">🔐</div>
-                <div class="lock-title">Digite seu PIN</div>
-                <div class="pin-display" id="pinDisplay">
-                    <div class="pin-dot"></div>
-                    <div class="pin-dot"></div>
-                    <div class="pin-dot"></div>
-                    <div class="pin-dot"></div>
-                </div>
-                <div class="pin-error" id="pinError">PIN incorreto</div>
-                <div class="pin-pad" id="pinPad">
-                    ${[1,2,3,4,5,6,7,8,9].map(n => 
-                        `<button class="pin-btn" onclick="enterPinDigit(${n})">${n}</button>`
-                    ).join('')}
-                    <div></div>
-                    <button class="pin-btn" onclick="enterPinDigit(0)">0</button>
-                    <button class="pin-btn delete" onclick="deletePinDigit()">⌫</button>
-                </div>
-            `;
-        }
-
-        function enterPinDigit(digit) {
-            if (currentPin.length < 4) {
-                currentPin += digit;
-                updatePinDisplay();
-                
-                if (currentPin.length === 4) {
-                    setTimeout(validatePin, 200);
-                }
-            }
-        }
-
-        function deletePinDigit() {
-            currentPin = currentPin.slice(0, -1);
-            updatePinDisplay();
-            document.getElementById('pinError').classList.remove('show');
-        }
-
-        function updatePinDisplay() {
-            const dots = document.querySelectorAll('.pin-dot');
-            dots.forEach((dot, i) => {
-                if (i < currentPin.length) {
-                    dot.classList.add('filled');
-                } else {
-                    dot.classList.remove('filled');
-                }
-            });
-        }
-
-        function validatePin() {
-            const savedPin = localStorage.getItem(PIN_KEY);
-            
-            if (isSettingPin) {
-                if (!tempPin) {
-                    tempPin = currentPin;
-                    currentPin = '';
-                    updatePinDisplay();
-                    document.querySelector('.lock-title').textContent = 'Confirme o PIN';
-                } else {
-                    if (tempPin === currentPin) {
-                        localStorage.setItem(PIN_KEY, currentPin);
-                        const settings = getSettings();
-                        settings.pinProtection = true;
-                        saveSettings(settings);
-                        hideLockScreen();
-                        showStatus('🔐 PIN configurado com sucesso!', 'success');
-                        isSettingPin = false;
-                        tempPin = '';
-                    } else {
-                        document.getElementById('pinError').textContent = 'PINs não conferem';
-                        document.getElementById('pinError').classList.add('show');
-                        currentPin = '';
-                        tempPin = '';
-                        updatePinDisplay();
-                    }
-                }
-            } else {
-                if (currentPin === savedPin) {
-                    hideLockScreen();
-                } else {
-                    document.getElementById('pinError').classList.add('show');
-                    currentPin = '';
-                    updatePinDisplay();
-                    
-                    if (navigator.vibrate) {
-                        navigator.vibrate([50, 100, 50]);
-                    }
-                }
-            }
-        }
-
-        async function useBiometric() {
-            try {
-                const publicKey = {
-                    challenge: new Uint8Array(32),
-                    rp: { name: 'FiadoBot' },
-                    user: {
-                        id: new Uint8Array(16),
-                        name: 'user',
-                        displayName: 'User'
-                    },
-                    pubKeyCredParams: [{ alg: -7, type: 'public-key' }],
-                    authenticatorSelection: {
-                        authenticatorAttachment: 'platform',
-                        userVerification: 'required'
-                    },
-                    timeout: 60000
-                };
-                
-                await navigator.credentials.get({ publicKey });
-                hideLockScreen();
-            } catch (err) {
-                console.log('Biometria falhou:', err);
-            }
-        }
-
-        function hideLockScreen() {
-            document.getElementById('lockScreen').classList.add('hidden');
-            currentPin = '';
-        }
-
-        function togglePinProtection() {
-            const settings = getSettings();
-            const savedPin = localStorage.getItem(PIN_KEY);
-            
-            if (settings.pinProtection) {
-                if (confirm('Deseja remover a proteção com PIN?')) {
-                    localStorage.removeItem(PIN_KEY);
-                    settings.pinProtection = false;
-                    saveSettings(settings);
-                    document.getElementById('pinToggle').classList.remove('active');
-                    showStatus('🔓 Proteção removida', 'success');
-                }
-            } else {
-                isSettingPin = true;
-                showLockScreen();
-                document.querySelector('.lock-title').textContent = 'Crie um PIN de 4 dígitos';
-            }
-            
-            closeModal(null, 'backupModal');
-        }
-
-        // ==================== AUTOCOMPLETE ====================
-        function setupAutocomplete() {
-            const input = document.getElementById('commandInput');
-            const list = document.getElementById('autocompleteList');
-            
-            input.addEventListener('input', (e) => {
-                const value = e.target.value.toLowerCase().trim();
-                if (value.length < 1) {
-                    list.classList.remove('show');
-                    return;
-                }
-                
-                const db = getDatabase();
-                const clients = Object.keys(db);
-                const matches = clients.filter(name => name.toLowerCase().startsWith(value));
-                
-                if (matches.length > 0) {
-                    list.innerHTML = matches.map(name => {
-                        const balance = db[name].balance;
-                        let balanceClass = '';
-                        let balanceText = formatCurrency(balance);
-                        
-                        if (balance > 0) balanceClass = 'negative';
-                        else if (balance < 0) {
-                            balanceClass = 'positive';
-                            balanceText = '+' + formatCurrency(Math.abs(balance)) + ' crédito';
-                        }
-                        
-                        return `
-                            <div class="autocomplete-item" onclick="selectClient('${name}')">
-                                <span>${name.charAt(0).toUpperCase() + name.slice(1)}</span>
-                                <span class="balance ${balanceClass}">${balanceText}</span>
-                            </div>
-                        `;
-                    }).join('');
-                    list.classList.add('show');
-                } else {
-                    list.classList.remove('show');
-                }
-            });
-            
-            document.addEventListener('click', (e) => {
-                if (!e.target.closest('.autocomplete-container')) {
-                    list.classList.remove('show');
-                }
-            });
-        }
-
-        function selectClient(name) {
-            const input = document.getElementById('commandInput');
-            const parts = input.value.split(' ');
-            parts[0] = name;
-            input.value = parts.join(' ');
-            document.getElementById('autocompleteList').classList.remove('show');
-            input.focus();
-        }
-
-        // ==================== BANCO DE DADOS ====================
-        function getDatabase() {
+        // ===== DATA LAYER =====
+        const DB_KEY = 'fiadobot_v3';
+        
+        function getDB() {
             const data = localStorage.getItem(DB_KEY);
             return data ? JSON.parse(data) : {};
         }
 
-        function saveDatabase(data) {
+        function saveDB(data) {
             localStorage.setItem(DB_KEY, JSON.stringify(data));
-            createAutoBackup();
-            showAutoSaveIndicator();
+            updateUI();
         }
 
-        function showAutoSaveIndicator() {
-            const indicator = document.getElementById('autoSaveIndicator');
-            indicator.classList.add('show');
-            setTimeout(() => indicator.classList.remove('show'), 2000);
-        }
-
-        function createAutoBackup() {
-            const db = getDatabase();
-            const backups = JSON.parse(localStorage.getItem(BACKUP_KEY) || '[]');
-            
-            const backup = {
-                date: new Date().toISOString(),
-                data: db,
-                size: JSON.stringify(db).length
-            };
-
-            backups.unshift(backup);
-            if (backups.length > 10) backups.pop();
-            
-            localStorage.setItem(BACKUP_KEY, JSON.stringify(backups));
-        }
-
-        // ==================== MENSAGENS ====================
-        function addMessage(text, type = 'bot') {
-            const container = document.getElementById('chatContainer');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${type}-message`;
-            messageDiv.innerHTML = text;
-            container.appendChild(messageDiv);
-            container.scrollTop = container.scrollHeight;
-            
-            if (privacyMode) {
-                setTimeout(applyPrivacyMode, 100);
+        function getClient(name) {
+            const db = getDB();
+            if (!db[name]) {
+                db[name] = {
+                    name: name,
+                    balance: 0,
+                    transactions: [],
+                    phone: '',
+                    whatsapp: '',
+                    notes: '',
+                    created: new Date().toISOString()
+                };
             }
+            return db[name];
         }
 
-        function formatCurrency(value) {
-            return new Intl.NumberFormat('pt-BR', {
-                style: 'currency',
-                currency: 'BRL'
-            }).format(Math.abs(value));
+        // ===== UI UPDATES =====
+        function updateUI() {
+            updateMetrics();
+            updateClientList();
+            updateTimeline();
+            updateSuggestions();
+            updateClientCount();
         }
 
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            return date.toLocaleDateString('pt-BR', {
-                day: '2-digit',
-                month: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit'
+        function updateMetrics() {
+            const db = getDB();
+            let debt = 0, credit = 0, count = 0;
+            const attention = [];
+
+            Object.values(db).forEach(client => {
+                count++;
+                if (client.balance > 0) {
+                    debt += client.balance;
+                    if (client.balance > 100) { // Alerta para valores altos
+                        attention.push(client);
+                    }
+                } else if (client.balance < 0) {
+                    credit += Math.abs(client.balance);
+                }
             });
+
+            document.getElementById('metricDebt').textContent = formatMoney(debt);
+            document.getElementById('metricCredit').textContent = formatMoney(credit);
+            document.getElementById('metricClients').textContent = count;
+
+            // Attention list
+            const attentionEl = document.getElementById('attentionList');
+            if (attention.length === 0) {
+                attentionEl.innerHTML = `
+                    <div class="empty-state mb-0">
+                        <div class="empty-icon">✅</div>
+                        <div class="empty-title">Tudo em ordem!</div>
+                        <div class="empty-desc">Nenhum cliente com pendências urgentes.</div>
+                    </div>`;
+            } else {
+                attentionEl.innerHTML = attention.map(c => `
+                    <div class="client-item debt" onclick="showClientDetail('${c.name}')" style="margin-bottom:8px;">
+                        <div class="client-main">
+                            <div class="client-info">
+                                <h3>${capitalize(c.name)}</h3>
+                            </div>
+                            <div class="client-balance">
+                                <div class="amount debt">${formatMoney(c.balance)}</div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Top clients (maior movimentação)
+            const sorted = Object.values(db).sort((a, b) => b.transactions.length - a.transactions.length).slice(0, 3);
+            const topEl = document.getElementById('topClients');
+            if (sorted.length === 0 || sorted[0].transactions.length === 0) {
+                topEl.innerHTML = `
+                    <div class="empty-state mb-0">
+                        <div class="empty-icon">👤</div>
+                        <div class="empty-title">Sem dados</div>
+                        <div class="empty-desc">Adicione vendas para ver estatísticas.</div>
+                    </div>`;
+            } else {
+                topEl.innerHTML = sorted.map(c => `
+                    <div class="client-item ${c.balance > 0 ? 'debt' : c.balance < 0 ? 'credit' : ''}" onclick="showClientDetail('${c.name}')" style="margin-bottom:8px;">
+                        <div class="client-main">
+                            <div class="client-info">
+                                <h3>${capitalize(c.name)}</h3>
+                                <div class="client-meta">
+                                    <span>📝 ${c.transactions.length} registros</span>
+                                </div>
+                            </div>
+                            <div class="client-balance">
+                                <div class="amount ${c.balance > 0 ? 'debt' : c.balance < 0 ? 'credit' : 'zero'}">
+                                    ${c.balance < 0 ? '+' : ''}${formatMoney(Math.abs(c.balance))}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
         }
 
-        // ==================== PROCESSAMENTO DE COMANDOS ====================
-        function processCommand() {
-            const input = document.getElementById('commandInput');
-            const command = input.value.trim().toLowerCase();
+        function updateClientList(filter = '') {
+            const db = getDB();
+            const clients = Object.values(db).sort((a, b) => {
+                // Devedores primeiro, depois por nome
+                if (a.balance > 0 && b.balance <= 0) return -1;
+                if (a.balance <= 0 && b.balance > 0) return 1;
+                return a.name.localeCompare(b.name);
+            }).filter(c => c.name.toLowerCase().includes(filter.toLowerCase()));
+
+            const list = document.getElementById('clientList');
             
-            if (!command) return;
+            if (clients.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">🔍</div>
+                        <div class="empty-title">Nenhum cliente</div>
+                        <div class="empty-desc">${filter ? 'Tente outra busca.' : 'Adicione seu primeiro cliente usando o campo abaixo.'}</div>
+                    </div>`;
+                return;
+            }
 
-            addMessage(input.value, 'user');
-            addRecentCommand(input.value);
-            input.value = '';
-            document.getElementById('autocompleteList').classList.remove('show');
-
-            setTimeout(() => executeCommand(command), 300);
+            list.innerHTML = clients.map(c => `
+                <div class="client-item ${c.balance > 0 ? 'debt' : c.balance < 0 ? 'credit' : ''}" onclick="showClientDetail('${c.name}')">
+                    <div class="client-main">
+                        <div class="client-info">
+                            <h3>${capitalize(c.name)}</h3>
+                            <div class="client-meta">
+                                ${c.phone ? `<span>📞 ${c.phone}</span>` : ''}
+                                ${c.whatsapp ? `<span>💬 ${c.whatsapp}</span>` : ''}
+                                <span>📝 ${c.transactions.length}</span>
+                            </div>
+                        </div>
+                        <div class="client-balance">
+                            <div class="amount ${c.balance > 0 ? 'debt' : c.balance < 0 ? 'credit' : 'zero'}">
+                                ${c.balance < 0 ? '+' : ''}${formatMoney(Math.abs(c.balance))}
+                            </div>
+                            <div class="label">${c.balance < 0 ? 'CRÉDITO' : c.balance > 0 ? 'DEVENDO' : 'QUITADO'}</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
         }
 
-        function executeCommand(command) {
-            const parts = command.split(/\s+/);
+        function updateTimeline() {
+            const db = getDB();
+            const allTransactions = [];
             
-            if (command === 'clientes' || command === 'lista') {
-                showAllClients();
-                return;
-            }
+            Object.values(db).forEach(client => {
+                client.transactions.forEach(t => {
+                    allTransactions.push({
+                        ...t,
+                        clientName: client.name,
+                        clientPhone: client.phone,
+                        clientWhatsApp: client.whatsapp
+                    });
+                });
+            });
+
+            allTransactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            const timeline = document.getElementById('timeline');
             
-            if (command === 'resumo' || command === 'total') {
-                showSummary();
+            if (allTransactions.length === 0) {
+                timeline.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📝</div>
+                        <div class="empty-title">Sem registros</div>
+                        <div class="empty-desc">As transações aparecerão aqui.</div>
+                    </div>`;
                 return;
             }
 
-            if (command === 'limpar' || command === 'clear') {
-                clearChat();
+            // Agrupar por data
+            const grouped = {};
+            allTransactions.forEach(t => {
+                const date = new Date(t.date).toLocaleDateString('pt-BR');
+                if (!grouped[date]) grouped[date] = [];
+                grouped[date].push(t);
+            });
+
+            timeline.innerHTML = Object.entries(grouped).map(([date, items]) => `
+                <div class="timeline-date">${date === new Date().toLocaleDateString('pt-BR') ? 'Hoje' : date}</div>
+                ${items.map(t => `
+                    <div class="timeline-item ${t.type}">
+                        <div class="timeline-content">
+                            <div class="timeline-header">
+                                <span class="timeline-client">${capitalize(t.clientName)}</span>
+                                <span class="timeline-amount ${t.type}">
+                                    ${t.type === 'sale' || t.type === 'adc' ? '+' : t.type === 'credit_use' ? '💳' : '-'}${formatMoney(t.value)}
+                                </span>
+                            </div>
+                            <div class="timeline-desc">${t.description || (t.type === 'sale' || t.type === 'adc' ? 'Venda fiado' : t.type === 'credit_use' ? 'Uso de crédito' : 'Pagamento recebido')}</div>
+                            ${t.clientWhatsApp && t.type !== 'payment' ? `
+                                <button class="action-btn-small primary" style="margin-top:8px;width:100%;" onclick="event.stopPropagation();sendWhatsApp('${t.clientWhatsApp}', '${t.clientName}', ${t.value})">
+                                    💬 Enviar comprovante
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `).join('')}
+            `).join('');
+        }
+
+        function updateSuggestions() {
+            const db = getDB();
+            const clients = Object.keys(db).slice(0, 3);
+            const suggestions = document.getElementById('suggestions');
+            
+            const cmds = [
+                ...clients.map(c => `${c} adc `),
+                ...clients.map(c => `${c} pg `),
+                'clientes', 'resumo'
+            ].slice(0, 5);
+
+            suggestions.innerHTML = cmds.map(cmd => `
+                <button class="suggestion-chip" onclick="setCommand('${cmd}')">${cmd}</button>
+            `).join('');
+        }
+
+        function updateClientCount() {
+            const count = Object.keys(getDB()).length;
+            document.getElementById('clientCount').textContent = count;
+        }
+
+        // ===== ACTIONS =====
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            
+            document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+            document.getElementById(tab + 'View').classList.add('active');
+            
+            updateUI();
+        }
+
+        function processQuickCommand() {
+            const input = document.getElementById('quickCommand');
+            const cmd = input.value.trim().toLowerCase();
+            if (!cmd) return;
+
+            const parts = cmd.split(/\s+/);
+            
+            // Comandos especiais
+            if (cmd === 'clientes' || cmd === 'cliente') {
+                switchTab('clients');
+                input.value = '';
+                return;
+            }
+            if (cmd === 'resumo' || cmd === 'dashboard') {
+                switchTab('dashboard');
+                input.value = '';
+                return;
+            }
+            if (cmd === 'historico' || cmd === 'registros') {
+                switchTab('history');
+                input.value = '';
                 return;
             }
 
-            if (command === 'ajuda' || command === 'help') {
-                showHelp();
-                return;
-            }
-
-            if (command === 'backup') {
-                showBackup();
-                return;
-            }
-
-            if (command === 'tema') {
-                toggleTheme();
-                return;
-            }
-
+            // Operações financeiras
             if (parts.length >= 3) {
                 const name = parts[0];
                 const action = parts[1];
                 const value = parseFloat(parts[2].replace(',', '.'));
 
                 if (isNaN(value) || value <= 0) {
-                    addMessage('❌ Valor inválido. Use números positivos.', 'error');
+                    showToast('Valor inválido', 'error');
                     return;
                 }
 
-                const db = getDatabase();
+                const db = getDB();
+                const client = getClient(name);
 
                 if (action === 'adc' || action === 'add') {
-                    // NOVO: Verificar se cliente tem crédito (saldo negativo)
+                    // Verificar crédito primeiro
                     let creditUsed = 0;
-                    let actualValue = value;
-                    
-                    if (!db[name]) {
-                        db[name] = { 
-                            balance: 0, 
-                            transactions: [],
-                            phone: '',
-                            whatsapp: '',
-                            notes: ''
-                        };
-                    }
-                    
-                    // Se tem crédito (saldo negativo), usa o crédito primeiro
-                    if (db[name].balance < 0) {
-                        const credit = Math.abs(db[name].balance);
+                    let remainingValue = value;
+
+                    if (client.balance < 0) {
+                        const credit = Math.abs(client.balance);
                         if (credit >= value) {
                             // Crédito cobre tudo
-                            db[name].balance += value; // Aumenta (menos negativo)
+                            client.balance += value;
                             creditUsed = value;
-                            actualValue = 0;
+                            remainingValue = 0;
                             
-                            db[name].transactions.push({
+                            client.transactions.push({
                                 type: 'credit_use',
                                 value: value,
                                 date: new Date().toISOString(),
-                                description: `Usou R$ ${formatCurrency(value)} de crédito`
+                                description: `Usou ${formatMoney(value)} de crédito`
                             });
-                            
-                            saveDatabase(db);
-                            
-                            addMessage(`
-                                <div class="success-message" style="margin: -12px -16px; padding: 12px 16px; border-radius: 20px;">
-                                    ✅ <strong>${name.charAt(0).toUpperCase() + name.slice(1)}</strong><br>
-                                    Compra: ${formatCurrency(value)}<br>
-                                    💳 Pago com crédito!<br>
-                                    <strong>Crédito restante: ${formatCurrency(Math.abs(db[name].balance))}</strong>
-                                </div>
-                            `, 'bot');
-                            return;
                         } else {
                             // Crédito parcial
                             creditUsed = credit;
-                            actualValue = value - credit;
-                            db[name].balance = 0; // Zera o crédito
+                            remainingValue = value - credit;
+                            client.balance = 0;
                             
-                            db[name].transactions.push({
+                            client.transactions.push({
                                 type: 'credit_use',
                                 value: credit,
                                 date: new Date().toISOString(),
-                                description: `Usou R$ ${formatCurrency(credit)} de crédito`
+                                description: `Usou ${formatMoney(credit)} de crédito`
                             });
                         }
                     }
-                    
-                    // Adiciona o restante à dívida
-                    if (actualValue > 0) {
-                        db[name].balance += actualValue;
-                        db[name].transactions.push({
+
+                    // Adiciona restante se houver
+                    if (remainingValue > 0) {
+                        client.balance += remainingValue;
+                        client.transactions.push({
                             type: 'adc',
-                            value: actualValue,
+                            value: remainingValue,
                             date: new Date().toISOString(),
-                            description: creditUsed > 0 ? `Venda (após usar crédito)` : 'Venda fiado'
+                            description: creditUsed > 0 ? 'Venda (usou crédito)' : 'Venda fiado'
                         });
                     }
-                    
-                    saveDatabase(db);
-                    
-                    let msg = `
-                        <div class="success-message" style="margin: -12px -16px; padding: 12px 16px; border-radius: 20px;">
-                            ✅ <strong>${name.charAt(0).toUpperCase() + name.slice(1)}</strong><br>
-                    `;
-                    
+
+                    db[name] = client;
+                    saveDB(db);
+
                     if (creditUsed > 0) {
-                        msg += `Total: ${formatCurrency(value)}<br>`;
-                        msg += `💳 Crédito usado: ${formatCurrency(creditUsed)}<br>`;
-                        msg += `📈 Adicionado: ${formatCurrency(actualValue)}<br>`;
+                        showToast(`💳 Usou ${formatMoney(creditUsed)} de crédito. Adicionado ${formatMoney(remainingValue)}`, 'success');
                     } else {
-                        msg += `Adicionado: ${formatCurrency(value)}<br>`;
+                        showToast(`✅ Adicionado ${formatMoney(value)} para ${capitalize(name)}`, 'success');
                     }
-                    
-                    msg += `<strong>Saldo atual: ${formatCurrency(db[name].balance)}</strong>`;
-                    
-                    if (db[name].balance < 0) {
-                        msg += `<br><span class="credit-badge">💰 TEM CRÉDITO</span>`;
-                    }
-                    
-                    msg += `</div>`;
-                    
-                    addMessage(msg, 'bot');
 
                 } else if (action === 'pg' || action === 'pag') {
-                    if (!db[name]) {
-                        db[name] = { 
-                            balance: 0, 
-                            transactions: [],
-                            phone: '',
-                            whatsapp: '',
-                            notes: ''
-                        };
-                    }
-
-                    db[name].balance -= value;
-                    db[name].transactions.push({
-                        type: 'pg',
+                    client.balance -= value;
+                    client.transactions.push({
+                        type: 'payment',
                         value: value,
                         date: new Date().toISOString(),
                         description: 'Pagamento recebido'
                     });
 
-                    saveDatabase(db);
+                    db[name] = client;
+                    saveDB(db);
 
-                    const balance = db[name].balance;
-                    let msg = `
-                        <div class="success-message" style="margin: -12px -16px; padding: 12px 16px; border-radius: 20px;">
-                            ✅ <strong>${name.charAt(0).toUpperCase() + name.slice(1)}</strong><br>
-                            Pagamento: ${formatCurrency(value)}<br>
-                    `;
-                    
-                    if (balance < 0) {
-                        // Tem crédito
-                        msg += `<strong style="color: var(--success);">💰 CRÉDITO: ${formatCurrency(Math.abs(balance))}</strong>`;
-                    } else if (balance === 0) {
-                        msg += `<strong style="color: var(--success);">✅ Quitado!</strong>`;
+                    if (client.balance < 0) {
+                        showToast(`💰 ${capitalize(name)} tem ${formatMoney(Math.abs(client.balance))} de crédito`, 'success');
+                    } else if (client.balance === 0) {
+                        showToast(`✅ ${capitalize(name)} quitou a dívida!`, 'success');
                     } else {
-                        msg += `<strong style="color: var(--danger);">Resta: ${formatCurrency(balance)}</strong>`;
-                    }
-                    
-                    msg += `</div>`;
-                    
-                    addMessage(msg, 'bot');
-
-                } else {
-                    addMessage('❌ Comando não reconhecido. Use "adc" ou "pg".', 'error');
-                }
-
-            } else if (parts.length === 1 && parts[0] !== '') {
-                const name = parts[0];
-                const db = getDatabase();
-
-                if (db[name]) {
-                    showClientDetails(name, db[name]);
-                } else {
-                    // Criar novo cliente?
-                    if (confirm(`Cliente "${name}" não existe. Deseja criar?`)) {
-                        db[name] = {
-                            balance: 0,
-                            transactions: [],
-                            phone: '',
-                            whatsapp: '',
-                            notes: ''
-                        };
-                        saveDatabase(db);
-                        showClientDetails(name, db[name]);
-                        showStatus('✅ Cliente criado!', 'success');
-                    } else {
-                        addMessage(`❌ Cliente "${name}" não encontrado.`, 'error');
+                        showToast(`✅ Pagamento de ${formatMoney(value)} registrado`, 'success');
                     }
                 }
 
-            } else {
-                addMessage('❌ Formato: <strong>nome adc valor</strong> ou <strong>nome pg valor</strong>', 'error');
+                input.value = '';
+                updateUI();
+            } else if (parts.length === 1 && parts[0]) {
+                // Mostrar detalhes do cliente
+                showClientDetail(parts[0]);
+                input.value = '';
             }
         }
 
-        function showClientDetails(name, data) {
-            currentEditingClient = name;
-            const balance = data.balance;
-            let balanceClass = '';
-            let statusText = '';
-            let cardClass = '';
+        function showClientDetail(name) {
+            const client = getClient(name);
+            const balance = client.balance;
             
-            if (balance > 0) {
-                balanceClass = 'negative';
-                statusText = '🔴 Deve pagar';
-            } else if (balance < 0) {
-                balanceClass = 'positive';
-                statusText = '🟢 Tem crédito';
-                cardClass = 'credit';
-            } else {
-                statusText = '✅ Em dia';
-            }
-
-            let transactionsHtml = '';
-            if (data.transactions && data.transactions.length > 0) {
-                const recentTransactions = data.transactions.slice(-5).reverse();
-                transactionsHtml = '<div class="transaction-list"><strong>Últimas movimentações:</strong>';
-                
-                recentTransactions.forEach(t => {
-                    let badge = '';
-                    let typeText = '';
-                    
-                    if (t.type === 'adc') {
-                        badge = '<span class="badge badge-adc">+</span>';
-                        typeText = 'Venda';
-                    } else if (t.type === 'pg') {
-                        badge = '<span class="badge badge-pg">-</span>';
-                        typeText = 'Pagamento';
-                    } else if (t.type === 'credit_use') {
-                        badge = '<span class="badge" style="background: #e3f2fd; color: #1976d2;">💳</span>';
-                        typeText = 'Crédito';
-                    }
-                    
-                    transactionsHtml += `
-                        <div class="transaction-item">
-                            <span>${badge} ${typeText} ${formatCurrency(t.value)}</span>
-                            <span class="date">${formatDate(t.date)}</span>
-                        </div>
-                    `;
-                });
-                
-                transactionsHtml += '</div>';
-            }
-
-            // Informações de contato
-            let contactInfo = '';
-            if (data.phone || data.whatsapp) {
-                contactInfo = '<div class="client-info">';
-                if (data.phone) contactInfo += `📞 ${data.phone}<br>`;
-                if (data.whatsapp) contactInfo += `💬 ${data.whatsapp}<br>`;
-                if (data.notes) contactInfo += `📝 ${data.notes}`;
-                contactInfo += '</div>';
-            }
-
-            addMessage(`
-                <div class="balance-card ${cardClass}">
-                    <div class="balance-header">
-                        <span class="client-name">👤 ${name.charAt(0).toUpperCase() + name.slice(1)}</span>
-                        <span class="balance-amount ${balanceClass}">
-                            ${balance < 0 ? '+' : ''}${formatCurrency(balance)}
-                            ${balance < 0 ? ' CRÉDITO' : ''}
-                        </span>
-                    </div>
-                    <span style="color: ${balance > 0 ? 'var(--danger)' : (balance < 0 ? 'var(--success)' : 'var(--text-secondary)')}; font-size: 0.9rem;">
-                        ${statusText}
-                    </span>
-                    ${contactInfo}
-                    ${transactionsHtml}
-                    <div class="client-actions">
-                        <button class="client-action-btn edit" onclick="editClient('${name}')">
-                            ✏️ Editar
-                        </button>
-                        ${data.whatsapp ? `
-                        <button class="client-action-btn whatsapp" onclick="openWhatsApp('${data.whatsapp}', '${name}', ${balance})">
-                            💬 WhatsApp
-                        </button>
-                        ` : ''}
-                        <button class="client-action-btn delete" onclick="deleteClient('${name}')">
-                            🗑️ Excluir
-                        </button>
-                    </div>
-                </div>
-            `, 'bot');
+            // Preencher modal de edição
+            document.getElementById('editOldName').value = name;
+            document.getElementById('editName').value = name;
+            document.getElementById('editPhone').value = client.phone || '';
+            document.getElementById('editWhatsApp').value = client.whatsapp || '';
+            document.getElementById('editNotes').value = client.notes || '';
+            
+            // Mostrar modal
+            document.getElementById('editModal').classList.add('active');
         }
 
-        function editClient(name) {
-            const db = getDatabase();
-            const client = db[name];
-            
-            if (!client) return;
-            
-            document.getElementById('editClientOldName').value = name;
-            document.getElementById('editClientName').value = name;
-            document.getElementById('editClientPhone').value = client.phone || '';
-            document.getElementById('editClientWhatsApp').value = client.whatsapp || '';
-            document.getElementById('editClientNotes').value = client.notes || '';
-            
-            document.getElementById('editClientModal').style.display = 'block';
-        }
+        function saveClient() {
+            const oldName = document.getElementById('editOldName').value;
+            const newName = document.getElementById('editName').value.trim().toLowerCase();
+            const phone = document.getElementById('editPhone').value.trim();
+            const whatsapp = document.getElementById('editWhatsApp').value.trim();
+            const notes = document.getElementById('editNotes').value.trim();
 
-        function saveClientEdit() {
-            const oldName = document.getElementById('editClientOldName').value;
-            const newName = document.getElementById('editClientName').value.trim().toLowerCase();
-            const phone = document.getElementById('editClientPhone').value.trim();
-            const whatsapp = document.getElementById('editClientWhatsApp').value.trim();
-            const notes = document.getElementById('editClientNotes').value.trim();
-            
             if (!newName) {
-                showStatus('❌ Nome é obrigatório', 'error');
+                showToast('Nome é obrigatório', 'error');
                 return;
             }
+
+            const db = getDB();
             
-            const db = getDatabase();
-            
-            // Se mudou o nome, verificar se novo nome já existe
             if (oldName !== newName && db[newName]) {
-                showStatus('❌ Já existe cliente com este nome', 'error');
+                showToast('Já existe cliente com este nome', 'error');
                 return;
             }
-            
-            // Atualizar dados
-            const clientData = db[oldName];
+
+            const clientData = db[oldName] || getClient(oldName);
             clientData.phone = phone;
             clientData.whatsapp = whatsapp;
             clientData.notes = notes;
-            
-            // Se mudou nome, transferir dados
+
             if (oldName !== newName) {
                 db[newName] = clientData;
                 delete db[oldName];
-            }
-            
-            saveDatabase(db);
-            closeModal(null, 'editClientModal');
-            showStatus('✅ Cliente atualizado!', 'success');
-            
-            // Recarregar visualização
-            showClientDetails(newName, clientData);
-        }
-
-        function openWhatsApp(number, name, balance) {
-            // Limpar número
-            const cleanNumber = number.replace(/\D/g, '');
-            let message = '';
-            
-            if (balance > 0) {
-                message = `Olá ${name.charAt(0).toUpperCase() + name.slice(1)}! Passando para lembrar que há um pagamento pendente de ${formatCurrency(balance)}. Pode confirmar quando consegue quitar? Obrigado!`;
-            } else if (balance < 0) {
-                message = `Olá ${name.charAt(0).toUpperCase() + name.slice(1)}! Você tem um crédito de ${formatCurrency(Math.abs(balance))} conosco. Agradecemos a preferência!`;
             } else {
-                message = `Olá ${name.charAt(0).toUpperCase() + name.slice(1)}! Sua conta está em dia. Obrigado pela preferência!`;
+                db[oldName] = clientData;
             }
-            
-            const whatsappUrl = `https://wa.me/55${cleanNumber}?text=${encodeURIComponent(message)}`;
-            window.open(whatsappUrl, '_blank');
+
+            saveDB(db);
+            closeModal('editModal');
+            showToast('✅ Cliente atualizado', 'success');
         }
 
         function deleteClient(name) {
-            if (!confirm(`⚠️ Deseja excluir o cliente "${name}" permanentemente?\n\nTodas as transações serão perdidas!`)) {
-                return;
-            }
+            if (!confirm(`Excluir ${capitalize(name)} permanentemente?`)) return;
             
-            if (!confirm(`Tem certeza? Esta ação não pode ser desfeita!`)) {
-                return;
-            }
-            
-            const db = getDatabase();
+            const db = getDB();
             delete db[name];
-            saveDatabase(db);
+            saveDB(db);
             
-            showStatus('🗑️ Cliente excluído', 'success');
-            clearChat();
+            closeModal('editModal');
+            showToast('🗑️ Cliente excluído', 'success');
         }
 
-        function showAllClients() {
-            const db = getDatabase();
-            const clients = Object.keys(db);
-
-            if (clients.length === 0) {
-                addMessage('📭 Nenhum cliente cadastrado.', 'info');
-                return;
-            }
-
-            let totalReceber = 0;
-            let totalCredito = 0;
-            let html = '<div style="margin: -12px -16px; padding: 12px 16px;">';
-            html += '<h3 style="margin-bottom: 15px; color: var(--text-primary);">👥 Clientes</h3>';
-
-            // Ordenar: devedores primeiro, depois crédito, depois zerados
-            const sortedClients = clients.sort((a, b) => {
-                const balanceA = db[a].balance;
-                const balanceB = db[b].balance;
-                if (balanceA > 0 && balanceB <= 0) return -1;
-                if (balanceA <= 0 && balanceB > 0) return 1;
-                return balanceB - balanceA;
-            });
-
-            sortedClients.forEach(name => {
-                const data = db[name];
-                const balance = data.balance;
-                let balanceClass = '';
-                let cardClass = '';
-                let indicator = '';
-                
-                if (balance > 0) {
-                    balanceClass = 'negative';
-                    totalReceber += balance;
-                    indicator = '🔴';
-                } else if (balance < 0) {
-                    balanceClass = 'positive';
-                    cardClass = 'credit';
-                    totalCredito += Math.abs(balance);
-                    indicator = '💰';
-                } else {
-                    indicator = '✅';
-                }
-
-                html += `
-                    <div class="balance-card ${cardClass}" style="margin: 8px 0; cursor: pointer;" onclick="executeCommand('${name}')">
-                        <div class="balance-header">
-                            <span class="client-name">${indicator} ${name.charAt(0).toUpperCase() + name.slice(1)}</span>
-                            <span class="balance-amount ${balanceClass}">
-                                ${balance < 0 ? '+' : ''}${formatCurrency(balance)}
-                            </span>
-                        </div>
-                        <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 5px;">
-                            ${data.transactions.length} movimentações
-                            ${data.phone ? ' • 📞' : ''}
-                            ${data.whatsapp ? ' • 💬' : ''}
-                        </div>
-                    </div>
-                `;
-            });
-
-            html += `
-                <div class="total-summary" style="margin-top: 15px;">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                        <div>
-                            <div class="total-label">A Receber</div>
-                            <div class="total-value" style="font-size: 1.5rem;">${formatCurrency(totalReceber)}</div>
-                        </div>
-                        <div>
-                            <div class="total-label">Créditos</div>
-                            <div class="total-value positive" style="font-size: 1.5rem;">${formatCurrency(totalCredito)}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>`;
-
-            addMessage(html, 'bot');
+        function sendWhatsApp(number, name, value) {
+            const clean = number.replace(/\D/g, '');
+            const msg = `Olá ${capitalize(name)}! Recebemos seu pagamento de ${formatMoney(value)}. Obrigado!`;
+            window.open(`https://wa.me/55${clean}?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
-        function showSummary() {
-            const db = getDatabase();
-            const clients = Object.keys(db);
-            
-            let totalReceber = 0;
-            let totalCredito = 0;
-            let totalClientesDevedores = 0;
-            let totalClientesCredores = 0;
-            let maiorDevedor = { name: '-', value: 0 };
-            let maiorCredor = { name: '-', value: 0 };
-
-            clients.forEach(name => {
-                const balance = db[name].balance;
-                if (balance > 0) {
-                    totalReceber += balance;
-                    totalClientesDevedores++;
-                    if (balance > maiorDevedor.value) {
-                        maiorDevedor = { name, value: balance };
-                    }
-                } else if (balance < 0) {
-                    const credito = Math.abs(balance);
-                    totalCredito += credito;
-                    totalClientesCredores++;
-                    if (credito > maiorCredor.value) {
-                        maiorCredor = { name, value: credito };
-                    }
-                }
-            });
-
-            const html = `
-                <div class="total-summary" style="margin: -12px -16px; padding: 20px;">
-                    <h3 style="margin-bottom: 20px; color: var(--text-primary);">📊 Resumo Geral</h3>
-                    
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
-                        <div style="background: var(--bg-input); padding: 15px; border-radius: 10px;">
-                            <div style="font-size: 0.9rem; color: var(--text-secondary);">A Receber</div>
-                            <div style="font-size: 1.5rem; font-weight: 700; color: ${totalReceber > 0 ? 'var(--danger)' : 'var(--success)'};">
-                                ${formatCurrency(totalReceber)}
-                            </div>
-                        </div>
-                        <div style="background: var(--bg-input); padding: 15px; border-radius: 10px;">
-                            <div style="font-size: 0.9rem; color: var(--text-secondary);">Créditos</div>
-                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--success);">
-                                ${formatCurrency(totalCredito)}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div style="text-align: left; font-size: 0.95rem; color: var(--text-secondary);">
-                        <div style="margin: 8px 0;">🔴 Devedores: <strong>${totalClientesDevedores}</strong></div>
-                        <div style="margin: 8px 0;">💰 Com crédito: <strong>${totalClientesCredores}</strong></div>
-                        ${maiorDevedor.value > 0 ? `<div style="margin: 8px 0;">⚠️ Maior devedor: <strong>${maiorDevedor.name}</strong> (${formatCurrency(maiorDevedor.value)})</div>` : ''}
-                        ${maiorCredor.value > 0 ? `<div style="margin: 8px 0;">💎 Maior crédito: <strong>${maiorCredor.name}</strong> (${formatCurrency(maiorCredor.value)})</div>` : ''}
-                    </div>
-                </div>
-            `;
-
-            addMessage(html, 'bot');
+        // ===== MODAL & UTILS =====
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
         }
 
-        function clearChat() {
-            const container = document.getElementById('chatContainer');
-            container.innerHTML = `
-                <div class="bot-message message">
-                    🧹 Chat limpo!<br><br>
-                    <strong>Comandos:</strong><br>
-                    • <code>joao adc 50</code> - Adicionar venda<br>
-                    • <code>maria pg 30</code> - Registrar pagamento<br>
-                    • <code>joao</code> - Ver detalhes do cliente<br>
-                    • <code>clientes</code> - Lista completa<br>
-                    • <code>resumo</code> - Total geral
-                </div>
-            `;
+        function showSettings() {
+            document.getElementById('settingsModal').classList.add('active');
         }
 
-        // ==================== MODAIS ====================
-        function showHelp() {
-            document.getElementById('helpModal').style.display = 'block';
+        function setCommand(cmd) {
+            const input = document.getElementById('quickCommand');
+            input.value = cmd;
+            input.focus();
         }
 
-        function showBackup() {
-            const settings = getSettings();
-            document.getElementById('themeToggle').classList.toggle('active', settings.darkMode);
-            document.getElementById('privacyToggle').classList.toggle('active', settings.privacyMode);
-            document.getElementById('pinToggle').classList.toggle('active', settings.pinProtection);
-            
-            document.getElementById('backupModal').style.display = 'block';
+        function filterClients() {
+            const search = document.getElementById('clientSearch').value;
+            updateClientList(search);
         }
 
-        function closeModal(event, modalId) {
-            if (!event || event.target.id === modalId || event.target.className === 'close-btn') {
-                document.getElementById(modalId).style.display = 'none';
+        function toggleTheme() {
+            const isDark = document.documentElement.hasAttribute('data-theme');
+            if (isDark) {
+                document.documentElement.removeAttribute('data-theme');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
             }
         }
 
-        // ==================== BACKUP ====================
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        function formatMoney(value) {
+            return new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            }).format(value);
+        }
+
+        function capitalize(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+
+        // ===== EXPORT/IMPORT =====
         function exportData() {
-            const db = getDatabase();
-            const dataStr = JSON.stringify(db, null, 2);
-            const dataBlob = new Blob([dataStr], { type: 'application/json' });
-            
-            const date = new Date().toISOString().split('T')[0];
-            const fileName = `fiadobot_backup_${date}.json`;
-            
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(dataBlob);
-            link.download = fileName;
-            link.click();
-            
-            showStatus('✅ Backup exportado!', 'success');
+            const data = JSON.stringify(getDB(), null, 2);
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `fiadobot_backup_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            showToast('📤 Backup exportado', 'success');
         }
 
         function importData(input) {
@@ -2217,174 +1517,41 @@
             if (!file) return;
 
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = (e) => {
                 try {
                     const data = JSON.parse(e.target.result);
-                    
-                    if (typeof data !== 'object') {
-                        throw new Error('Formato inválido');
+                    if (confirm(`Importar ${Object.keys(data).length} clientes? Isso substituirá os dados atuais.`)) {
+                        saveDB(data);
+                        showToast('✅ Dados importados', 'success');
+                        closeModal('settingsModal');
                     }
-
-                    const clientCount = Object.keys(data).length;
-                    if (confirm(`Restaurar backup com ${clientCount} clientes?\n\nIsso substituirá os dados atuais!`)) {
-                        saveDatabase(data);
-                        showStatus('✅ Backup restaurado!', 'success');
-                        closeModal(null, 'backupModal');
-                    }
-                } catch (error) {
-                    showStatus('❌ Arquivo inválido', 'error');
+                } catch (err) {
+                    showToast('❌ Arquivo inválido', 'error');
                 }
             };
             reader.readAsText(file);
-            input.value = '';
-        }
-
-        async function shareBackup() {
-            const db = getDatabase();
-            const dataStr = JSON.stringify(db);
-            
-            if (navigator.share) {
-                try {
-                    const file = new File([dataStr], 'fiadobot_backup.json', { type: 'application/json' });
-                    await navigator.share({
-                        title: 'Backup FiadoBot',
-                        text: 'Backup do FiadoBot',
-                        files: [file]
-                    });
-                    showStatus('✅ Compartilhado!', 'success');
-                } catch (err) {
-                    copyToClipboard(dataStr);
-                }
-            } else {
-                copyToClipboard(dataStr);
-            }
-        }
-
-        function copyToClipboard(text) {
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(text).then(() => {
-                    showStatus('📋 Copiado! Cole em local seguro.', 'success');
-                });
-            } else {
-                const textarea = document.createElement('textarea');
-                textarea.value = text;
-                document.body.appendChild(textarea);
-                textarea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textarea);
-                showStatus('📋 Copiado!', 'success');
-            }
         }
 
         function confirmReset() {
-            if (confirm('⚠️ Apagar TODOS os dados?\n\nFaça backup primeiro!')) {
-                if (confirm('Confirma exclusão permanente?')) {
-                    localStorage.removeItem(DB_KEY);
-                    localStorage.removeItem(BACKUP_KEY);
-                    showStatus('🗑️ Dados apagados', 'error');
-                    closeModal(null, 'backupModal');
-                }
-            }
+            if (!confirm('⚠️ Todos os dados serão apagados. Faça backup primeiro!\n\nContinuar?')) return;
+            if (!confirm('Tem certeza? Esta ação não pode ser desfeita!')) return;
+            
+            localStorage.removeItem(DB_KEY);
+            updateUI();
+            showToast('🗑️ Dados apagados', 'success');
+            closeModal('settingsModal');
         }
 
-        function showStatus(message, type) {
-            const existing = document.querySelector('.status-bar');
-            if (existing) existing.remove();
-
-            const div = document.createElement('div');
-            div.className = `status-bar ${type === 'error' ? 'error' : ''}`;
-            div.textContent = message;
+        // ===== INIT =====
+        document.addEventListener('DOMContentLoaded', () => {
+            updateUI();
             
-            document.body.appendChild(div);
-            
-            setTimeout(() => div.remove(), 3000);
-        }
-
-        function addRecentCommand(command) {
-            let recent = JSON.parse(localStorage.getItem(RECENT_CMDS_KEY) || '[]');
-            recent = recent.filter(cmd => cmd !== command);
-            recent.unshift(command);
-            recent = recent.slice(0, 5);
-            localStorage.setItem(RECENT_CMDS_KEY, JSON.stringify(recent));
-            updateRecentCommands();
-        }
-
-        function updateRecentCommands() {
-            const container = document.getElementById('recentCommands');
-            const recent = JSON.parse(localStorage.getItem(RECENT_CMDS_KEY) || '[]');
-            
-            if (recent.length === 0) {
-                container.style.display = 'none';
-                return;
-            }
-            
-            container.style.display = 'flex';
-            container.innerHTML = recent.map(cmd => `
-                <button class="recent-cmd" onclick="executeCommand('${cmd}')">${cmd}</button>
-            `).join('');
-        }
-
-        // ==================== PWA ====================
-        let deferredPrompt;
-        const installBanner = document.getElementById('installBanner');
-
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            installBanner.classList.add('show');
-        });
-
-        window.addEventListener('appinstalled', () => {
-            installBanner.classList.remove('show');
-            deferredPrompt = null;
-            showStatus('✅ App instalado!', 'success');
-        });
-
-        function installApp() {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    deferredPrompt = null;
+            // Fechar modais ao clicar fora
+            document.querySelectorAll('.modal-overlay').forEach(m => {
+                m.addEventListener('click', (e) => {
+                    if (e.target === m) m.classList.remove('active');
                 });
-            }
-        }
-
-        // Event listeners
-        document.getElementById('commandInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                processCommand();
-            }
-        });
-
-        document.getElementById('commandInput').focus();
-
-        document.addEventListener('gesturestart', function(e) {
-            e.preventDefault();
-        });
-
-        // Splash screen
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                document.getElementById('splashScreen').classList.add('hide');
-            }, 1500);
-        });
-
-        // Ajuste de altura mobile
-        function adjustHeight() {
-            const vh = window.innerHeight * 0.01;
-            document.documentElement.style.setProperty('--vh', `${vh}px`);
-        }
-
-        window.addEventListener('resize', adjustHeight);
-        adjustHeight();
-
-        // Online/offline
-        window.addEventListener('online', () => {
-            document.getElementById('offlineIndicator').classList.remove('show');
-        });
-
-        window.addEventListener('offline', () => {
-            document.getElementById('offlineIndicator').classList.add('show');
+            });
         });
     </script>
 </body>
