@@ -707,18 +707,37 @@
     </div>
 
     <script>
-        // Registro do Service Worker
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(registration => {
-                        console.log('SW registrado:', registration);
-                    })
-                    .catch(error => {
-                        console.log('SW falhou:', error);
-                    });
-            });
+ // Registro do Service Worker (corrigido para GitHub Pages)
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    // Caminho absoluto baseado na URL atual
+    const swPath = '/Controle-fiado-chatbot/sw.js';
+    
+    console.log('[App] Registrando SW em:', swPath);
+    
+    navigator.serviceWorker.register(swPath)
+      .then(registration => {
+        console.log('[App] SW registrado:', registration.scope);
+        
+        // Força atualização se houver novo SW esperando
+        if (registration.waiting) {
+          registration.waiting.postMessage('skipWaiting');
         }
+      })
+      .catch(error => {
+        console.error('[App] Falha ao registrar SW:', error);
+      });
+      
+    // Recarrega quando novo SW ativar
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (refreshing) return;
+      refreshing = true;
+      window.location.reload();
+    });
+  });
+}
+
 
         // Controle de instalação PWA
         let deferredPrompt;
