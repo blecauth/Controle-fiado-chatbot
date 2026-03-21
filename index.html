@@ -3,9 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#667eea">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>FiadoBot - Controle de Vendas</title>
+    <meta name="description" content="Controle de vendas fiado - Gerencie clientes e pagamentos">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Ícones Apple -->
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-192x192.png">
+    
+    <title>FiadoBot</title>
     <style>
         * {
             margin: 0;
@@ -19,6 +30,8 @@
             --safe-area-bottom: env(safe-area-inset-bottom, 0px);
             --safe-area-left: env(safe-area-inset-left, 0px);
             --safe-area-right: env(safe-area-inset-right, 0px);
+            --primary: #667eea;
+            --secondary: #764ba2;
         }
 
         html {
@@ -28,10 +41,9 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             height: 100%;
             height: -webkit-fill-available;
-            height: fill-available;
             overflow: hidden;
             display: flex;
             flex-direction: column;
@@ -39,6 +51,44 @@
             padding-bottom: var(--safe-area-bottom);
             padding-left: var(--safe-area-left);
             padding-right: var(--safe-area-right);
+        }
+
+        /* Splash screen */
+        .splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease-out;
+        }
+
+        .splash-screen.hide {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .splash-icon {
+            font-size: 5rem;
+            margin-bottom: 20px;
+            animation: pulse 1.5s infinite;
+        }
+
+        .splash-text {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
         }
 
         .header {
@@ -60,8 +110,33 @@
             gap: 10px;
         }
 
-        .header-icon {
-            font-size: 1.8rem;
+        .install-banner {
+            background: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            animation: slideDown 0.3s ease;
+        }
+
+        .install-banner.show {
+            display: flex;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-100%); }
+            to { transform: translateY(0); }
+        }
+
+        .install-btn {
+            background: white;
+            color: #4CAF50;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            cursor: pointer;
         }
 
         .quick-actions {
@@ -193,7 +268,7 @@
         }
 
         #commandInput:focus {
-            border-color: #667eea;
+            border-color: var(--primary);
         }
 
         .send-btn {
@@ -201,7 +276,7 @@
             height: 50px;
             border-radius: 50%;
             border: none;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             color: white;
             font-size: 1.2rem;
             cursor: pointer;
@@ -222,7 +297,7 @@
             border-radius: 15px;
             padding: 15px;
             margin: 10px 0;
-            border-left: 5px solid #667eea;
+            border-left: 5px solid var(--primary);
         }
 
         .balance-header {
@@ -241,7 +316,7 @@
         .balance-amount {
             font-size: 1.3rem;
             font-weight: 700;
-            color: #667eea;
+            color: var(--primary);
         }
 
         .balance-amount.negative {
@@ -268,18 +343,6 @@
         .date {
             color: #999;
             font-size: 0.8rem;
-        }
-
-        .empty-state {
-            text-align: center;
-            color: rgba(255,255,255,0.7);
-            padding: 40px 20px;
-        }
-
-        .empty-state-icon {
-            font-size: 4rem;
-            margin-bottom: 15px;
-            opacity: 0.5;
         }
 
         .modal {
@@ -335,13 +398,13 @@
             margin: 10px 0;
             font-family: 'Courier New', monospace;
             font-size: 0.9rem;
-            border-left: 4px solid #667eea;
+            border-left: 4px solid var(--primary);
         }
 
         .close-btn {
             width: 100%;
             padding: 12px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             color: white;
             border: none;
             border-radius: 10px;
@@ -354,9 +417,9 @@
             width: 100%;
             padding: 15px;
             margin: 10px 0;
-            border: 2px solid #667eea;
+            border: 2px solid var(--primary);
             background: white;
-            color: #667eea;
+            color: var(--primary);
             border-radius: 12px;
             font-size: 1rem;
             cursor: pointer;
@@ -368,7 +431,7 @@
         }
 
         .backup-btn:active {
-            background: #667eea;
+            background: var(--primary);
             color: white;
             transform: scale(0.98);
         }
@@ -441,14 +504,18 @@
         }
 
         .status-bar {
+            position: fixed;
+            top: calc(60px + var(--safe-area-top));
+            left: 50%;
+            transform: translateX(-50%);
             background: #4CAF50;
             color: white;
-            padding: 10px;
-            border-radius: 8px;
-            margin: 10px 0;
-            text-align: center;
+            padding: 12px 24px;
+            border-radius: 25px;
             font-size: 0.9rem;
+            z-index: 1001;
             animation: fadeIn 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
 
         .status-bar.error {
@@ -456,8 +523,8 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
         }
 
         .auto-save-indicator {
@@ -477,14 +544,50 @@
         .auto-save-indicator.show {
             opacity: 1;
         }
+
+        .offline-indicator {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #ff9800;
+            color: white;
+            text-align: center;
+            padding: 8px;
+            font-size: 0.85rem;
+            transform: translateY(-100%);
+            transition: transform 0.3s;
+            z-index: 1002;
+        }
+
+        .offline-indicator.show {
+            transform: translateY(0);
+        }
     </style>
 </head>
 <body>
+    <!-- Splash Screen -->
+    <div class="splash-screen" id="splashScreen">
+        <div class="splash-icon">💰</div>
+        <div class="splash-text">FiadoBot</div>
+    </div>
+
+    <!-- Offline Indicator -->
+    <div class="offline-indicator" id="offlineIndicator">
+        📴 Você está offline - Dados salvos localmente
+    </div>
+
+    <!-- Install Banner -->
+    <div class="install-banner" id="installBanner">
+        <span>📲 Instalar FiadoBot no celular?</span>
+        <button class="install-btn" onclick="installApp()">Instalar</button>
+    </div>
+
     <div class="auto-save-indicator" id="autoSaveIndicator">💾 Salvo</div>
 
     <div class="header">
         <h1>
-            <span class="header-icon">💰</span>
+            <span style="font-size: 1.8rem;">💰</span>
             FiadoBot
         </h1>
     </div>
@@ -506,7 +609,7 @@
                 • <code>maria pg 30</code> - Registra pagamento de R$ 30,00 da Maria<br>
                 • <code>clientes</code> - Ver todos os clientes<br>
                 • <code>resumo</code> - Ver total a receber<br><br>
-                <em style="font-size: 0.9rem; color: #666;">💡 Dica: Use a aba "Backup" para proteger seus dados!</em>
+                <em style="font-size: 0.9rem; color: #666;">💡 Dica: Toque em "Instalar" para adicionar à tela inicial!</em>
             </div>
         </div>
 
@@ -569,8 +672,8 @@
             </div>
 
             <div class="backup-info">
-                <strong>⚠️ Importante:</strong> Os dados são salvos no navegador deste dispositivo. 
-                Para não perder seus dados, faça backup regularmente!
+                <strong>⚠️ Importante:</strong> Os dados são salvos no dispositivo. 
+                Faça backup regularmente para não perder informações!
             </div>
 
             <button class="backup-btn" onclick="exportData()">
@@ -588,7 +691,7 @@
 
             <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #eee;">
                 <p style="font-size: 0.9rem; color: #666; margin-bottom: 10px;">
-                    <strong>Auto-backup:</strong> Últimos salvamentos automáticos:
+                    <strong>Auto-backup:</strong> Últimos salvamentos:
                 </p>
                 <div id="autoBackupList" style="font-size: 0.85rem; color: #999;">
                     Carregando...
@@ -604,7 +707,58 @@
     </div>
 
     <script>
-        // Banco de dados em localStorage
+        // Registro do Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(registration => {
+                        console.log('SW registrado:', registration);
+                    })
+                    .catch(error => {
+                        console.log('SW falhou:', error);
+                    });
+            });
+        }
+
+        // Controle de instalação PWA
+        let deferredPrompt;
+        const installBanner = document.getElementById('installBanner');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBanner.classList.add('show');
+        });
+
+        window.addEventListener('appinstalled', () => {
+            installBanner.classList.remove('show');
+            deferredPrompt = null;
+            showStatus('✅ App instalado com sucesso!', 'success');
+        });
+
+        function installApp() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('Usuário aceitou instalação');
+                    }
+                    deferredPrompt = null;
+                });
+            }
+        }
+
+        // Detecção de offline/online
+        window.addEventListener('online', () => {
+            document.getElementById('offlineIndicator').classList.remove('show');
+            showStatus('🌐 Conectado!', 'success');
+        });
+
+        window.addEventListener('offline', () => {
+            document.getElementById('offlineIndicator').classList.add('show');
+        });
+
+        // Banco de dados
         const DB_KEY = 'fiadoBot_data';
         const BACKUP_KEY = 'fiadoBot_backups';
 
@@ -627,7 +781,6 @@
             }, 2000);
         }
 
-        // Sistema de auto-backup (últimos 10 estados)
         function createAutoBackup() {
             const db = getDatabase();
             const backups = JSON.parse(localStorage.getItem(BACKUP_KEY) || '[]');
@@ -731,6 +884,11 @@
                 return;
             }
 
+            if (command === 'instalar' || command === 'install') {
+                installApp();
+                return;
+            }
+
             if (parts.length >= 3) {
                 const name = parts[0];
                 const action = parts[1];
@@ -743,7 +901,7 @@
 
                 const db = getDatabase();
 
-                if (action === 'adc' || action === 'add' || action === 'adicionar') {
+                if (action === 'adc' || action === 'add') {
                     if (!db[name]) {
                         db[name] = { balance: 0, transactions: [] };
                     }
@@ -766,7 +924,7 @@
                         </div>
                     `, 'bot');
 
-                } else if (action === 'pg' || action === 'pag' || action === 'pagar' || action === 'pagamento') {
+                } else if (action === 'pg' || action === 'pag') {
                     if (!db[name]) {
                         db[name] = { balance: 0, transactions: [] };
                     }
@@ -796,7 +954,7 @@
                     `, 'bot');
 
                 } else {
-                    addMessage('❌ Comando não reconhecido. Use "adc" para adicionar ou "pg" para pagamento.', 'error');
+                    addMessage('❌ Comando não reconhecido. Use "adc" ou "pg".', 'error');
                 }
 
             } else if (parts.length === 1 && parts[0] !== '') {
@@ -806,11 +964,11 @@
                 if (db[name]) {
                     showClientDetails(name, db[name]);
                 } else {
-                    addMessage(`❌ Cliente "${name}" não encontrado. Use "clientes" para ver a lista.`, 'error');
+                    addMessage(`❌ Cliente "${name}" não encontrado.`, 'error');
                 }
 
             } else {
-                addMessage('❌ Formato inválido. Use: <strong>nome adc valor</strong> ou <strong>nome pg valor</strong><br>Exemplo: joao adc 50', 'error');
+                addMessage('❌ Formato: <strong>nome adc valor</strong> ou <strong>nome pg valor</strong>', 'error');
             }
         }
 
@@ -855,7 +1013,7 @@
             const clients = Object.keys(db);
 
             if (clients.length === 0) {
-                addMessage('📭 Nenhum cliente cadastrado ainda. Adicione uma venda para começar!', 'info');
+                addMessage('📭 Nenhum cliente cadastrado.', 'info');
                 return;
             }
 
@@ -899,7 +1057,6 @@
             
             let totalReceber = 0;
             let totalClientesDevedores = 0;
-            let totalClientesCredores = 0;
             let maiorDevedor = { name: '-', value: 0 };
 
             clients.forEach(name => {
@@ -910,8 +1067,6 @@
                     if (balance > maiorDevedor.value) {
                         maiorDevedor = { name, value: balance };
                     }
-                } else if (balance < 0) {
-                    totalClientesCredores++;
                 }
             });
 
@@ -935,9 +1090,8 @@
                     </div>
 
                     <div style="text-align: left; font-size: 0.95rem; color: #666;">
-                        <div style="margin: 8px 0;">🔴 Clientes devendo: <strong>${totalClientesDevedores}</strong></div>
-                        <div style="margin: 8px 0;">🟢 Clientes em dia: <strong>${totalClientesCredores}</strong></div>
-                        ${maiorDevedor.value > 0 ? `<div style="margin: 8px 0;">⚠️ Maior devedor: <strong>${maiorDevedor.name.charAt(0).toUpperCase() + maiorDevedor.name.slice(1)}</strong> (${formatCurrency(maiorDevedor.value)})</div>` : ''}
+                        <div style="margin: 8px 0;">🔴 Devendo: <strong>${totalClientesDevedores}</strong></div>
+                        ${maiorDevedor.value > 0 ? `<div style="margin: 8px 0;">⚠️ Maior devedor: <strong>${maiorDevedor.name}</strong> (${formatCurrency(maiorDevedor.value)})</div>` : ''}
                     </div>
                 </div>
             `;
@@ -949,13 +1103,12 @@
             const container = document.getElementById('chatContainer');
             container.innerHTML = `
                 <div class="bot-message message">
-                    🧹 Chat limpo! Como posso ajudar?<br><br>
-                    <strong>Comandos disponíveis:</strong><br>
-                    • <code>nome adc valor</code> - Adicionar dívida<br>
-                    • <code>nome pg valor</code> - Registrar pagamento<br>
-                    • <code>clientes</code> - Ver todos os clientes<br>
-                    • <code>resumo</code> - Ver total a receber<br>
-                    • <code>backup</code> - Gerenciar backups
+                    🧹 Chat limpo!<br><br>
+                    <strong>Comandos:</strong><br>
+                    • <code>nome adc valor</code> - Adicionar<br>
+                    • <code>nome pg valor</code> - Pagar<br>
+                    • <code>clientes</code> - Lista<br>
+                    • <code>resumo</code> - Total
                 </div>
             `;
         }
@@ -975,7 +1128,6 @@
             }
         }
 
-        // Funções de Backup
         function exportData() {
             const db = getDatabase();
             const dataStr = JSON.stringify(db, null, 2);
@@ -984,16 +1136,13 @@
             const date = new Date().toISOString().split('T')[0];
             const fileName = `fiadobot_backup_${date}.json`;
             
-            // Criar link de download
             const link = document.createElement('a');
             link.href = URL.createObjectURL(dataBlob);
             link.download = fileName;
             link.click();
             
-            // Também salvar nos backups automáticos
             createAutoBackup();
-            
-            showStatus('✅ Backup exportado com sucesso!', 'success');
+            showStatus('✅ Backup exportado!', 'success');
         }
 
         function importData(input) {
@@ -1005,24 +1154,22 @@
                 try {
                     const data = JSON.parse(e.target.result);
                     
-                    // Validar estrutura
                     if (typeof data !== 'object') {
                         throw new Error('Formato inválido');
                     }
 
-                    // Confirmar importação
                     const clientCount = Object.keys(data).length;
-                    if (confirm(`Deseja restaurar o backup com ${clientCount} clientes?\n\n⚠️ Isso substituirá todos os dados atuais!`)) {
+                    if (confirm(`Restaurar backup com ${clientCount} clientes?\n\nIsso substituirá os dados atuais!`)) {
                         saveDatabase(data);
-                        showStatus('✅ Backup restaurado com sucesso!', 'success');
+                        showStatus('✅ Backup restaurado!', 'success');
                         closeModal(null, 'backupModal');
                     }
                 } catch (error) {
-                    showStatus('❌ Erro ao importar backup. Arquivo inválido.', 'error');
+                    showStatus('❌ Arquivo inválido', 'error');
                 }
             };
             reader.readAsText(file);
-            input.value = ''; // Reset input
+            input.value = '';
         }
 
         async function shareBackup() {
@@ -1034,12 +1181,11 @@
                     const file = new File([dataStr], 'fiadobot_backup.json', { type: 'application/json' });
                     await navigator.share({
                         title: 'Backup FiadoBot',
-                        text: 'Backup do sistema de controle de vendas fiado',
+                        text: 'Backup do FiadoBot',
                         files: [file]
                     });
-                    showStatus('✅ Backup compartilhado!', 'success');
+                    showStatus('✅ Compartilhado!', 'success');
                 } catch (err) {
-                    // Fallback: copiar para clipboard
                     copyToClipboard(dataStr);
                 }
             } else {
@@ -1050,41 +1196,37 @@
         function copyToClipboard(text) {
             if (navigator.clipboard) {
                 navigator.clipboard.writeText(text).then(() => {
-                    showStatus('📋 Dados copiados! Cole em um local seguro.', 'success');
+                    showStatus('📋 Copiado! Cole em local seguro.', 'success');
                 });
             } else {
-                // Fallback
                 const textarea = document.createElement('textarea');
                 textarea.value = text;
                 document.body.appendChild(textarea);
                 textarea.select();
                 document.execCommand('copy');
                 document.body.removeChild(textarea);
-                showStatus('📋 Dados copiados! Cole em um local seguro.', 'success');
+                showStatus('📋 Copiado!', 'success');
             }
         }
 
         function confirmReset() {
-            if (confirm('⚠️ TEM CERTEZA?\n\nIsso apagará TODOS os dados permanentemente!\n\nRecomendamos fazer um backup antes.')) {
-                if (confirm('Última chance! Deseja mesmo apagar todos os dados?')) {
+            if (confirm('⚠️ Apagar TODOS os dados?\n\nFaça backup primeiro!')) {
+                if (confirm('Confirma exclusão permanente?')) {
                     localStorage.removeItem(DB_KEY);
                     localStorage.removeItem(BACKUP_KEY);
-                    showStatus('🗑️ Todos os dados foram apagados', 'error');
+                    showStatus('🗑️ Dados apagados', 'error');
                     closeModal(null, 'backupModal');
                 }
             }
         }
 
         function showStatus(message, type) {
+            const existing = document.querySelector('.status-bar');
+            if (existing) existing.remove();
+
             const div = document.createElement('div');
             div.className = `status-bar ${type === 'error' ? 'error' : ''}`;
             div.textContent = message;
-            div.style.position = 'fixed';
-            div.style.top = 'calc(60px + var(--safe-area-top))';
-            div.style.left = '50%';
-            div.style.transform = 'translateX(-50%)';
-            div.style.zIndex = '1001';
-            div.style.minWidth = '200px';
             
             document.body.appendChild(div);
             
@@ -1102,12 +1244,18 @@
 
         document.getElementById('commandInput').focus();
 
-        // Previne zoom em inputs no iOS
         document.addEventListener('gesturestart', function(e) {
             e.preventDefault();
         });
 
-        // Ajustar altura em mobile (endereço bar do Chrome)
+        // Splash screen
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('splashScreen').classList.add('hide');
+            }, 1500);
+        });
+
+        // Ajuste de altura mobile
         function adjustHeight() {
             const vh = window.innerHeight * 0.01;
             document.documentElement.style.setProperty('--vh', `${vh}px`);
