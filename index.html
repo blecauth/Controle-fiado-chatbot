@@ -2,7 +2,9 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>FiadoBot - Controle de Vendas</title>
     <style>
         * {
@@ -12,13 +14,31 @@
             -webkit-tap-highlight-color: transparent;
         }
 
+        :root {
+            --safe-area-top: env(safe-area-inset-top, 0px);
+            --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+            --safe-area-left: env(safe-area-inset-left, 0px);
+            --safe-area-right: env(safe-area-inset-right, 0px);
+        }
+
+        html {
+            height: 100%;
+            overflow: hidden;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            height: 100vh;
+            height: 100%;
+            height: -webkit-fill-available;
+            height: fill-available;
             overflow: hidden;
             display: flex;
             flex-direction: column;
+            padding-top: var(--safe-area-top);
+            padding-bottom: var(--safe-area-bottom);
+            padding-left: var(--safe-area-left);
+            padding-right: var(--safe-area-right);
         }
 
         .header {
@@ -28,6 +48,7 @@
             text-align: center;
             color: white;
             border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            flex-shrink: 0;
         }
 
         .header h1 {
@@ -43,11 +64,40 @@
             font-size: 1.8rem;
         }
 
+        .quick-actions {
+            display: flex;
+            gap: 8px;
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            flex-shrink: 0;
+        }
+
+        .quick-btn {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            color: white;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quick-btn:active {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(0.95);
+        }
+
         .main-container {
             flex: 1;
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            position: relative;
+            min-height: 0;
         }
 
         .chat-container {
@@ -58,6 +108,8 @@
             flex-direction: column;
             gap: 12px;
             scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 20px;
         }
 
         .message {
@@ -116,11 +168,13 @@
 
         .input-container {
             background: white;
-            padding: 15px;
+            padding: 12px 15px;
+            padding-bottom: calc(12px + var(--safe-area-bottom));
             border-top: 1px solid #e0e0e0;
             display: flex;
             gap: 10px;
             align-items: center;
+            flex-shrink: 0;
         }
 
         .input-wrapper {
@@ -156,35 +210,11 @@
             justify-content: center;
             transition: transform 0.2s, box-shadow 0.2s;
             box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            flex-shrink: 0;
         }
 
         .send-btn:active {
             transform: scale(0.95);
-        }
-
-        .quick-actions {
-            display: flex;
-            gap: 8px;
-            padding: 10px 15px;
-            background: rgba(255, 255, 255, 0.1);
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .quick-btn {
-            padding: 8px 16px;
-            background: rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 20px;
-            color: white;
-            font-size: 0.85rem;
-            white-space: nowrap;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .quick-btn:active {
-            background: rgba(255, 255, 255, 0.3);
         }
 
         .balance-card {
@@ -252,7 +282,7 @@
             opacity: 0.5;
         }
 
-        .help-modal {
+        .modal {
             display: none;
             position: fixed;
             top: 0;
@@ -263,15 +293,19 @@
             z-index: 1000;
             padding: 20px;
             overflow-y: auto;
+            padding-top: calc(20px + var(--safe-area-top));
+            padding-bottom: calc(20px + var(--safe-area-bottom));
         }
 
-        .help-content {
+        .modal-content {
             background: white;
             border-radius: 20px;
             padding: 25px;
             max-width: 400px;
             margin: 20px auto;
             animation: slideUp 0.3s ease-out;
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         @keyframes slideUp {
@@ -285,7 +319,7 @@
             }
         }
 
-        .help-title {
+        .modal-title {
             font-size: 1.3rem;
             color: #333;
             margin-bottom: 20px;
@@ -304,7 +338,7 @@
             border-left: 4px solid #667eea;
         }
 
-        .close-help {
+        .close-btn {
             width: 100%;
             padding: 12px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -314,6 +348,48 @@
             font-size: 1rem;
             margin-top: 20px;
             cursor: pointer;
+        }
+
+        .backup-btn {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 12px;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.2s;
+        }
+
+        .backup-btn:active {
+            background: #667eea;
+            color: white;
+            transform: scale(0.98);
+        }
+
+        .backup-btn.danger {
+            border-color: #e53935;
+            color: #e53935;
+        }
+
+        .backup-btn.danger:active {
+            background: #e53935;
+            color: white;
+        }
+
+        .backup-info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-size: 0.9rem;
+            color: #1565c0;
         }
 
         .total-summary {
@@ -359,9 +435,53 @@
             background: #e8f5e9;
             color: #2e7d32;
         }
+
+        .hidden-input {
+            display: none;
+        }
+
+        .status-bar {
+            background: #4CAF50;
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            text-align: center;
+            font-size: 0.9rem;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .status-bar.error {
+            background: #e53935;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .auto-save-indicator {
+            position: fixed;
+            top: calc(10px + var(--safe-area-top));
+            right: 10px;
+            background: rgba(76, 175, 80, 0.9);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 100;
+        }
+
+        .auto-save-indicator.show {
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
+    <div class="auto-save-indicator" id="autoSaveIndicator">💾 Salvo</div>
+
     <div class="header">
         <h1>
             <span class="header-icon">💰</span>
@@ -373,6 +493,7 @@
         <button class="quick-btn" onclick="showHelp()">❓ Ajuda</button>
         <button class="quick-btn" onclick="showAllClients()">👥 Clientes</button>
         <button class="quick-btn" onclick="showSummary()">📊 Resumo</button>
+        <button class="quick-btn" onclick="showBackup()">💾 Backup</button>
         <button class="quick-btn" onclick="clearChat()">🧹 Limpar</button>
     </div>
 
@@ -384,7 +505,8 @@
                 • <code>joao adc 50</code> - Adiciona R$ 50,00 para João<br>
                 • <code>maria pg 30</code> - Registra pagamento de R$ 30,00 da Maria<br>
                 • <code>clientes</code> - Ver todos os clientes<br>
-                • <code>resumo</code> - Ver total a receber
+                • <code>resumo</code> - Ver total a receber<br><br>
+                <em style="font-size: 0.9rem; color: #666;">💡 Dica: Use a aba "Backup" para proteger seus dados!</em>
             </div>
         </div>
 
@@ -403,9 +525,10 @@
         </div>
     </div>
 
-    <div class="help-modal" id="helpModal" onclick="closeHelp(event)">
-        <div class="help-content" onclick="event.stopPropagation()">
-            <div class="help-title">
+    <!-- Modal de Ajuda -->
+    <div class="modal" id="helpModal" onclick="closeModal(event, 'helpModal')">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-title">
                 <span>📖</span>
                 Como usar o FiadoBot
             </div>
@@ -433,13 +556,57 @@
             <p><strong>Ver cliente específico:</strong></p>
             <div class="command-example">nome</div>
 
-            <button class="close-help" onclick="closeHelp()">Entendi!</button>
+            <button class="close-btn" onclick="closeModal(null, 'helpModal')">Entendi!</button>
+        </div>
+    </div>
+
+    <!-- Modal de Backup -->
+    <div class="modal" id="backupModal" onclick="closeModal(event, 'backupModal')">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-title">
+                <span>💾</span>
+                Backup e Restauração
+            </div>
+
+            <div class="backup-info">
+                <strong>⚠️ Importante:</strong> Os dados são salvos no navegador deste dispositivo. 
+                Para não perder seus dados, faça backup regularmente!
+            </div>
+
+            <button class="backup-btn" onclick="exportData()">
+                <span>📤</span> Exportar Backup (Download)
+            </button>
+
+            <button class="backup-btn" onclick="document.getElementById('importFile').click()">
+                <span>📥</span> Importar Backup (Restaurar)
+            </button>
+            <input type="file" id="importFile" class="hidden-input" accept=".json" onchange="importData(this)">
+
+            <button class="backup-btn" onclick="shareBackup()">
+                <span>📱</span> Compartilhar Backup
+            </button>
+
+            <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #eee;">
+                <p style="font-size: 0.9rem; color: #666; margin-bottom: 10px;">
+                    <strong>Auto-backup:</strong> Últimos salvamentos automáticos:
+                </p>
+                <div id="autoBackupList" style="font-size: 0.85rem; color: #999;">
+                    Carregando...
+                </div>
+            </div>
+
+            <button class="backup-btn danger" onclick="confirmReset()">
+                <span>🗑️</span> Limpar Todos os Dados
+            </button>
+
+            <button class="close-btn" onclick="closeModal(null, 'backupModal')">Fechar</button>
         </div>
     </div>
 
     <script>
         // Banco de dados em localStorage
         const DB_KEY = 'fiadoBot_data';
+        const BACKUP_KEY = 'fiadoBot_backups';
 
         function getDatabase() {
             const data = localStorage.getItem(DB_KEY);
@@ -448,6 +615,52 @@
 
         function saveDatabase(data) {
             localStorage.setItem(DB_KEY, JSON.stringify(data));
+            createAutoBackup();
+            showAutoSaveIndicator();
+        }
+
+        function showAutoSaveIndicator() {
+            const indicator = document.getElementById('autoSaveIndicator');
+            indicator.classList.add('show');
+            setTimeout(() => {
+                indicator.classList.remove('show');
+            }, 2000);
+        }
+
+        // Sistema de auto-backup (últimos 10 estados)
+        function createAutoBackup() {
+            const db = getDatabase();
+            const backups = JSON.parse(localStorage.getItem(BACKUP_KEY) || '[]');
+            
+            const backup = {
+                date: new Date().toISOString(),
+                data: db,
+                size: JSON.stringify(db).length
+            };
+
+            backups.unshift(backup);
+            if (backups.length > 10) backups.pop();
+            
+            localStorage.setItem(BACKUP_KEY, JSON.stringify(backups));
+            updateBackupList();
+        }
+
+        function updateBackupList() {
+            const list = document.getElementById('autoBackupList');
+            const backups = JSON.parse(localStorage.getItem(BACKUP_KEY) || '[]');
+            
+            if (backups.length === 0) {
+                list.innerHTML = 'Nenhum backup automático ainda';
+                return;
+            }
+
+            list.innerHTML = backups.map((b, i) => {
+                const date = new Date(b.date).toLocaleString('pt-BR');
+                const entries = Object.keys(b.data).length;
+                return `<div style="margin: 5px 0; padding: 5px; background: #f5f5f5; border-radius: 5px;">
+                    ${i === 0 ? '💾' : '•'} ${date} - ${entries} clientes
+                </div>`;
+            }).join('');
         }
 
         function addMessage(text, type = 'bot') {
@@ -482,11 +695,9 @@
             
             if (!command) return;
 
-            // Adiciona mensagem do usuário
             addMessage(input.value, 'user');
             input.value = '';
 
-            // Processa o comando
             setTimeout(() => {
                 executeCommand(command);
             }, 300);
@@ -495,7 +706,6 @@
         function executeCommand(command) {
             const parts = command.split(/\s+/);
             
-            // Comandos especiais
             if (command === 'clientes' || command === 'lista') {
                 showAllClients();
                 return;
@@ -516,7 +726,11 @@
                 return;
             }
 
-            // Formato: nome adc valor  OU  nome pg valor
+            if (command === 'backup') {
+                showBackup();
+                return;
+            }
+
             if (parts.length >= 3) {
                 const name = parts[0];
                 const action = parts[1];
@@ -530,7 +744,6 @@
                 const db = getDatabase();
 
                 if (action === 'adc' || action === 'add' || action === 'adicionar') {
-                    // Adicionar dívida
                     if (!db[name]) {
                         db[name] = { balance: 0, transactions: [] };
                     }
@@ -554,7 +767,6 @@
                     `, 'bot');
 
                 } else if (action === 'pg' || action === 'pag' || action === 'pagar' || action === 'pagamento') {
-                    // Registrar pagamento
                     if (!db[name]) {
                         db[name] = { balance: 0, transactions: [] };
                     }
@@ -588,7 +800,6 @@
                 }
 
             } else if (parts.length === 1 && parts[0] !== '') {
-                // Mostrar detalhes de um cliente específico
                 const name = parts[0];
                 const db = getDatabase();
 
@@ -652,7 +863,6 @@
             let html = '<div style="margin: -12px -16px; padding: 12px 16px;">';
             html += '<h3 style="margin-bottom: 15px; color: #333;">👥 Clientes</h3>';
 
-            // Ordena por saldo devedor (maior primeiro)
             const sortedClients = clients.sort((a, b) => db[b].balance - db[a].balance);
 
             sortedClients.forEach(name => {
@@ -744,7 +954,8 @@
                     • <code>nome adc valor</code> - Adicionar dívida<br>
                     • <code>nome pg valor</code> - Registrar pagamento<br>
                     • <code>clientes</code> - Ver todos os clientes<br>
-                    • <code>resumo</code> - Ver total a receber
+                    • <code>resumo</code> - Ver total a receber<br>
+                    • <code>backup</code> - Gerenciar backups
                 </div>
             `;
         }
@@ -753,10 +964,133 @@
             document.getElementById('helpModal').style.display = 'block';
         }
 
-        function closeHelp(event) {
-            if (!event || event.target.id === 'helpModal' || event.target.className === 'close-help') {
-                document.getElementById('helpModal').style.display = 'none';
+        function showBackup() {
+            document.getElementById('backupModal').style.display = 'block';
+            updateBackupList();
+        }
+
+        function closeModal(event, modalId) {
+            if (!event || event.target.id === modalId || event.target.className === 'close-btn') {
+                document.getElementById(modalId).style.display = 'none';
             }
+        }
+
+        // Funções de Backup
+        function exportData() {
+            const db = getDatabase();
+            const dataStr = JSON.stringify(db, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            
+            const date = new Date().toISOString().split('T')[0];
+            const fileName = `fiadobot_backup_${date}.json`;
+            
+            // Criar link de download
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = fileName;
+            link.click();
+            
+            // Também salvar nos backups automáticos
+            createAutoBackup();
+            
+            showStatus('✅ Backup exportado com sucesso!', 'success');
+        }
+
+        function importData(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    // Validar estrutura
+                    if (typeof data !== 'object') {
+                        throw new Error('Formato inválido');
+                    }
+
+                    // Confirmar importação
+                    const clientCount = Object.keys(data).length;
+                    if (confirm(`Deseja restaurar o backup com ${clientCount} clientes?\n\n⚠️ Isso substituirá todos os dados atuais!`)) {
+                        saveDatabase(data);
+                        showStatus('✅ Backup restaurado com sucesso!', 'success');
+                        closeModal(null, 'backupModal');
+                    }
+                } catch (error) {
+                    showStatus('❌ Erro ao importar backup. Arquivo inválido.', 'error');
+                }
+            };
+            reader.readAsText(file);
+            input.value = ''; // Reset input
+        }
+
+        async function shareBackup() {
+            const db = getDatabase();
+            const dataStr = JSON.stringify(db);
+            
+            if (navigator.share) {
+                try {
+                    const file = new File([dataStr], 'fiadobot_backup.json', { type: 'application/json' });
+                    await navigator.share({
+                        title: 'Backup FiadoBot',
+                        text: 'Backup do sistema de controle de vendas fiado',
+                        files: [file]
+                    });
+                    showStatus('✅ Backup compartilhado!', 'success');
+                } catch (err) {
+                    // Fallback: copiar para clipboard
+                    copyToClipboard(dataStr);
+                }
+            } else {
+                copyToClipboard(dataStr);
+            }
+        }
+
+        function copyToClipboard(text) {
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showStatus('📋 Dados copiados! Cole em um local seguro.', 'success');
+                });
+            } else {
+                // Fallback
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                showStatus('📋 Dados copiados! Cole em um local seguro.', 'success');
+            }
+        }
+
+        function confirmReset() {
+            if (confirm('⚠️ TEM CERTEZA?\n\nIsso apagará TODOS os dados permanentemente!\n\nRecomendamos fazer um backup antes.')) {
+                if (confirm('Última chance! Deseja mesmo apagar todos os dados?')) {
+                    localStorage.removeItem(DB_KEY);
+                    localStorage.removeItem(BACKUP_KEY);
+                    showStatus('🗑️ Todos os dados foram apagados', 'error');
+                    closeModal(null, 'backupModal');
+                }
+            }
+        }
+
+        function showStatus(message, type) {
+            const div = document.createElement('div');
+            div.className = `status-bar ${type === 'error' ? 'error' : ''}`;
+            div.textContent = message;
+            div.style.position = 'fixed';
+            div.style.top = 'calc(60px + var(--safe-area-top))';
+            div.style.left = '50%';
+            div.style.transform = 'translateX(-50%)';
+            div.style.zIndex = '1001';
+            div.style.minWidth = '200px';
+            
+            document.body.appendChild(div);
+            
+            setTimeout(() => {
+                div.remove();
+            }, 3000);
         }
 
         // Event listeners
@@ -766,13 +1100,24 @@
             }
         });
 
-        // Foco automático no input
         document.getElementById('commandInput').focus();
 
         // Previne zoom em inputs no iOS
         document.addEventListener('gesturestart', function(e) {
             e.preventDefault();
         });
+
+        // Ajustar altura em mobile (endereço bar do Chrome)
+        function adjustHeight() {
+            const vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
+        }
+
+        window.addEventListener('resize', adjustHeight);
+        adjustHeight();
+
+        // Inicializar
+        updateBackupList();
     </script>
 </body>
 </html>
