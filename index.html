@@ -264,7 +264,6 @@
                     </div>
                 </div>
                 <div class="header-actions">
-                    <button class="icon-btn" onclick="toggleTheme()">🌙</button>
                     <button class="icon-btn" onclick="showSettings()">⚙️</button>
                 </div>
             </div>
@@ -299,7 +298,7 @@
                     <div class="metric-card expense">
                         <div class="metric-icon">💸</div>
                         <div class="metric-value" id="metricExpenses">R$ 0</div>
-                        <div class="metric-label">Gastos Hoje</div>
+                        <div class="metric-label">Gastos Mês</div>
                     </div>
                 </div>
 
@@ -469,6 +468,9 @@
                     <div class="modal-title">⚙️ Configurações</div>
                 </div>
                 <div class="modal-body">
+                    <button class="btn btn-primary" onclick="toggleTheme(); closeModal('settingsModal');" style="width:100%;margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:8px;">
+                        <span id="themeIcon">🌙</span> <span id="themeText">Modo Noturno</span>
+                    </button>
                     <button class="btn btn-primary" onclick="exportData()" style="width:100%;margin-bottom:8px;">📤 Exportar</button>
                     <input type="file" id="importFile" hidden accept=".json" onchange="importData(this)">
                     <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()" style="width:100%;margin-bottom:8px;">📥 Importar</button>
@@ -521,15 +523,20 @@
             updateTimeline();
             updateSuggestions();
             updateFinanceView();
+            updateThemeButton();
             document.getElementById('clientCount').textContent = Object.keys(getDB().clients).length;
         }
 
         function updateMetrics() {
             const db = getDB();
-            let debt = 0, credit = 0, todayExpenses = 0;
+            let debt = 0, credit = 0, monthExpenses = 0;
             const newClients = [];
             const debtors = [];
-            const today = new Date().toLocaleDateString('pt-BR');
+            
+            // Calcula gastos do mês atual
+            const now = new Date();
+            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+            const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
 
             Object.values(db.clients).forEach(c => {
                 if (c.balance > 0) {
@@ -544,15 +551,16 @@
             });
 
             (db.expenses || []).forEach(e => {
-                if (new Date(e.date).toLocaleDateString('pt-BR') === today) {
-                    todayExpenses += e.value;
+                const eDate = new Date(e.date);
+                if (eDate >= startOfMonth && eDate <= endOfMonth) {
+                    monthExpenses += e.value;
                 }
             });
 
             document.getElementById('metricDebt').textContent = formatMoney(debt);
             document.getElementById('metricCredit').textContent = formatMoney(credit);
             document.getElementById('metricClients').textContent = Object.keys(db.clients).length;
-            document.getElementById('metricExpenses').textContent = formatMoney(todayExpenses);
+            document.getElementById('metricExpenses').textContent = formatMoney(monthExpenses);
 
             const newEl = document.getElementById('newClientsList');
             if (newClients.length === 0) {
@@ -730,6 +738,12 @@
             const names = Object.keys(db.clients).slice(0, 2);
             const cmds = ['add ', 'add custo ', ...names.map(n => `${n} adc `), ...names.map(n => `${n} pg `)];
             document.getElementById('suggestions').innerHTML = cmds.slice(0, 5).map(cmd => `<button class="suggestion-chip" onclick="setCommand('${cmd}')">${cmd}</button>`).join('');
+        }
+
+        function updateThemeButton() {
+            const isDark = document.documentElement.hasAttribute('data-theme');
+            document.getElementById('themeIcon').textContent = isDark ? '☀️' : '🌙';
+            document.getElementById('themeText').textContent = isDark ? 'Modo Claro' : 'Modo Noturno';
         }
 
         function processQuickCommand() {
@@ -977,7 +991,7 @@
         function showSettings() { document.getElementById('settingsModal').classList.add('active'); }
         function setCommand(cmd) { const input = document.getElementById('quickCommand'); input.value = cmd; input.focus(); }
         function filterClients() { updateClientList(document.getElementById('clientSearch').value); }
-        function toggleTheme() { document.documentElement.toggleAttribute('data-theme'); }
+        function toggleTheme() { document.documentElement.toggleAttribute('data-theme'); updateThemeButton(); }
 
         function showToast(msg, type = 'success') {
             const toast = document.getElementById('toast');
