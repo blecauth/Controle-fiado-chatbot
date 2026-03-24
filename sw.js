@@ -1,79 +1,73 @@
-// sw.js - Service Worker com atualização automática
-const CACHE_NAME = 'fiadobot-cache-v1.5';
+// sw.js - Service Worker corrigido para GitHub Pages
+const CACHE_NAME = 'fiadobot-cache-v1.6';  // Bump version
+const BASE_PATH = '/Controle-fiado-chatbot';
+
 const STATIC_ASSETS = [
-  '/Controle-fiado-chatbot/',
-  '/Controle-fiado-chatbot/index.html',
-  '/Controle-fiado-chatbot/manifest.json',
-  '/Controle-fiado-chatbot/icons/icon-192x192.png',
-  '/Controle-fiado-chatbot/icons/icon-512x512.png'
-  // ADICIONE SEUS ARQUIVOS CSS E JS AQUI
+  `${BASE_PATH}/`,
+  `${BASE_PATH}/index.html`,
+  `${BASE_PATH}/manifest.json`,
+  `${BASE_PATH}/icons/icon-192x192.png`,
+  `${BASE_PATH}/icons/icon-512x512.png`
 ];
 
-// Instalação: Cacheia assets e força ativação imediata
+// Instalação
 self.addEventListener('install', (event) => {
-  console.log('[SW] Instalando...');
-  
+  console.log('[SW] Instalando v1.6...');
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then((cache) => {
+      .then(cache => {
         console.log('[SW] Cache aberto');
         return cache.addAll(STATIC_ASSETS);
       })
-      .then(() => {
-        console.log('[SW] Assets cacheados com sucesso');
-        return self.skipWaiting();
-      })
-      .catch((err) => console.error('[SW] Erro no cache:', err))
+      .then(() => self.skipWaiting())
+      .catch(err => console.error('[SW] Erro:', err))
   );
 });
 
-// Ativação: Limpa caches antigos e assume controle
+// Ativação
 self.addEventListener('activate', (event) => {
   console.log('[SW] Ativando...');
-  
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
+    caches.keys().then(cacheNames => {
       return Promise.all(
         cacheNames
-          .filter((name) => name !== CACHE_NAME)
-          .map((name) => {
-            console.log('[SW] Deletando cache antigo:', name);
+          .filter(name => name !== CACHE_NAME)
+          .map(name => {
+            console.log('[SW] Deletando:', name);
             return caches.delete(name);
           })
       );
-    }).then(() => {
-      console.log('[SW] Clientes reivindicados');
-      return self.clients.claim();
-    })
+    }).then(() => self.clients.claim())
   );
 });
 
-// Fetch: Network First com fallback para cache
+// Fetch com correção de caminho
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
-  if (!event.request.url.startsWith(self.location.origin)) return;
+  
+  // Só intercepta requests do mesmo domínio e path
+  const url = new URL(event.request.url);
+  if (!url.pathname.startsWith(BASE_PATH)) return;
 
   event.respondWith(
     fetch(event.request)
-      .then((networkResponse) => {
-        if (networkResponse && networkResponse.status === 200) {
-          const responseToCache = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache);
+      .then(response => {
+        if (response && response.status === 200) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then(cache => {
+            cache.put(event.request, clone);
           });
         }
-        return networkResponse;
+        return response;
       })
       .catch(() => {
-        console.log('[SW] Offline, usando cache para:', event.request.url);
+        console.log('[SW] Offline:', event.request.url);
         return caches.match(event.request);
       })
   );
 });
 
-// Mensagens do cliente
+// Mensagens
 self.addEventListener('message', (event) => {
-  if (event.data === 'SKIP_WAITING') {
-    self.skipWaiting();
-  }
+  if (event.data === 'SKIP_WAITING') self.skipWaiting();
 });
