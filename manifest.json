@@ -2,7 +2,7 @@
   "name": "FiadoBot",
   "short_name": "FiadoBot",
   "description": "Controle de vendas fiado com saldo, crédito e gestão de clientes",
-  "start_url": "blecauth.github.io/Controle-fiado-chatbot/",
+  "start_url": "/Controle-fiado-chatbot/",
   "display": "standalone",
   "background_color": "#6366f1",
   "theme_color": "#6366f1",
