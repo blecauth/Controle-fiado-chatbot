@@ -15,31 +15,57 @@
     <title>FiadoBot</title>
     
     <script>
-        if ('serviceWorker' in navigator) {
-            let refreshing = false;
-            navigator.serviceWorker.addEventListener('controllerchange', () => {
-                if (refreshing) return;
-                refreshing = true;
-                window.location.reload();
+  // Registro do Service Worker FiadoBot
+  (function() {
+    'use strict';
+    
+    if (!('serviceWorker' in navigator)) {
+      console.log('⚠️ Service Worker não suportado');
+      return;
+    }
+    
+    let refreshing = false;
+    
+    // Recarrega quando o novo SW assumir controle
+    navigator.serviceWorker.addEventListener('controllerchange', function() {
+      if (refreshing) return;
+      refreshing = true;
+      console.log('🔄 Novo SW assumiu controle, recarregando...');
+      window.location.reload();
+    });
+    
+    // Registra o SW quando a página carregar
+    window.addEventListener('load', function() {
+      navigator.serviceWorker.register('/Controle-fiado-chatbot/sw.js')
+        .then(function(registration) {
+          console.log('✅ SW registrado:', registration.scope);
+          
+          // Verifica updates a cada 5 minutos
+          setInterval(function() {
+            registration.update();
+            console.log('🔄 Verificando atualizações...');
+          }, 5 * 60 * 1000);
+          
+          // Detecta quando há um novo SW disponível
+          registration.addEventListener('updatefound', function() {
+            var newWorker = registration.installing;
+            
+            newWorker.addEventListener('statechange', function() {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                // Nova versão disponível
+                if (confirm('🎉 Nova versão do FiadoBot disponível!\n\nDeseja atualizar agora?')) {
+                  newWorker.postMessage('SKIP_WAITING');
+                }
+              }
             });
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/Controle-fiado-chatbot/sw.js')
-                    .then((registration) => {
-                        setInterval(() => registration.update(), 5 * 60 * 1000);
-                        registration.addEventListener('updatefound', () => {
-                            const newWorker = registration.installing;
-                            newWorker.addEventListener('statechange', () => {
-                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                    if (confirm('🎉 Nova versão disponível!\n\nDeseja atualizar agora?')) {
-                                        newWorker.postMessage('SKIP_WAITING');
-                                    }
-                                }
-                            });
-                        });
-                    });
-            });
-        }
-    </script>
+          });
+        })
+        .catch(function(error) {
+          console.error('❌ Erro ao registrar SW:', error);
+        });
+    });
+  })();
+</script>
     
     <style>
         :root {
