@@ -1,9 +1,12 @@
 // sw.js - Service Worker com atualização automática
-const CACHE_NAME = 'fiadobot-cache-v1.4';
+const CACHE_NAME = 'fiadobot-cache-v1.5';
 const STATIC_ASSETS = [
   '/Controle-fiado-chatbot/',
   '/Controle-fiado-chatbot/index.html',
-  '/Controle-fiado-chatbot/manifest.json'
+  '/Controle-fiado-chatbot/manifest.json',
+  '/Controle-fiado-chatbot/icons/icon-192x192.png',
+  '/Controle-fiado-chatbot/icons/icon-512x512.png'
+  // ADICIONE SEUS ARQUIVOS CSS E JS AQUI
 ];
 
 // Instalação: Cacheia assets e força ativação imediata
@@ -16,8 +19,11 @@ self.addEventListener('install', (event) => {
         console.log('[SW] Cache aberto');
         return cache.addAll(STATIC_ASSETS);
       })
-      .then(() => self.skipWaiting())
-      .catch((err) => console.error('[SW] Erro:', err))
+      .then(() => {
+        console.log('[SW] Assets cacheados com sucesso');
+        return self.skipWaiting();
+      })
+      .catch((err) => console.error('[SW] Erro no cache:', err))
   );
 });
 
@@ -31,11 +37,14 @@ self.addEventListener('activate', (event) => {
         cacheNames
           .filter((name) => name !== CACHE_NAME)
           .map((name) => {
-            console.log('[SW] Deletando:', name);
+            console.log('[SW] Deletando cache antigo:', name);
             return caches.delete(name);
           })
       );
-    }).then(() => self.clients.claim())
+    }).then(() => {
+      console.log('[SW] Clientes reivindicados');
+      return self.clients.claim();
+    })
   );
 });
 
@@ -56,7 +65,7 @@ self.addEventListener('fetch', (event) => {
         return networkResponse;
       })
       .catch(() => {
-        console.log('[SW] Offline, usando cache');
+        console.log('[SW] Offline, usando cache para:', event.request.url);
         return caches.match(event.request);
       })
   );
