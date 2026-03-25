@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#6366f1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="description" content="Controle de vendas fiado - Gerencie clientes e pagamentos">
+    <meta name="description" content="Controle de vendas fiado - Gerencie clientes, pagamentos e gastos">
     
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icons/icon-192x192.png">
@@ -14,42 +14,29 @@
     
     <title>FiadoBot</title>
     
-    <!-- AUTO-UPDATE SERVICE WORKER -->
     <script>
         if ('serviceWorker' in navigator) {
             let refreshing = false;
-            
             navigator.serviceWorker.addEventListener('controllerchange', () => {
                 if (refreshing) return;
                 refreshing = true;
-                console.log('[App] Nova versão detectada, recarregando...');
                 window.location.reload();
             });
-            
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/Controle-fiado-chatbot/sw.js')
                     .then((registration) => {
-                        console.log('[App] SW registrado:', registration.scope);
-                        
-                        // Verifica atualizações a cada 5 minutos
-                        setInterval(() => {
-                            registration.update();
-                            console.log('[App] Verificando atualizações...');
-                        }, 5 * 60 * 1000);
-                        
+                        setInterval(() => registration.update(), 5 * 60 * 1000);
                         registration.addEventListener('updatefound', () => {
                             const newWorker = registration.installing;
                             newWorker.addEventListener('statechange', () => {
                                 if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                    console.log('[App] Nova versão disponível!');
                                     if (confirm('🎉 Nova versão disponível!\n\nDeseja atualizar agora?')) {
                                         newWorker.postMessage('SKIP_WAITING');
                                     }
                                 }
                             });
                         });
-                    })
-                    .catch((err) => console.error('[App] Erro no SW:', err));
+                    });
             });
         }
     </script>
@@ -68,6 +55,8 @@
             --warning-light: #fef3c7;
             --neutral: #6b7280;
             --neutral-light: #f3f4f6;
+            --expense: #f97316;
+            --expense-light: #ffedd5;
             --bg: #f8fafc;
             --surface: #ffffff;
             --text-primary: #1e293b;
@@ -93,743 +82,178 @@
             --border: #334155;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        }
-
-        html, body {
-            height: 100%;
-            overflow: hidden;
-            background: var(--bg);
-            color: var(--text-primary);
-        }
-
-        .app {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            padding-top: var(--safe-top);
-            padding-bottom: var(--safe-bottom);
-        }
-
-        .header {
-            background: var(--primary-gradient);
-            padding: 16px 20px;
-            padding-top: calc(16px + var(--safe-top));
-            color: white;
-            box-shadow: var(--shadow);
-            z-index: 100;
-        }
-
-        .header-content {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .header-title {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .header-icon {
-            width: 40px;
-            height: 40px;
-            background: rgba(255,255,255,0.2);
-            border-radius: var(--radius);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            backdrop-filter: blur(10px);
-        }
-
-        .header-text h1 {
-            font-size: 1.25rem;
-            font-weight: 700;
-            margin: 0;
-        }
-
-        .header-text p {
-            font-size: 0.75rem;
-            opacity: 0.9;
-            margin: 0;
-        }
-
-        .header-actions {
-            display: flex;
-            gap: 8px;
-        }
-
-        .icon-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: var(--radius);
-            border: none;
-            background: rgba(255,255,255,0.15);
-            color: white;
-            font-size: 1.25rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-        }
-
-        .icon-btn:active {
-            background: rgba(255,255,255,0.3);
-            transform: scale(0.95);
-        }
-
-        .tabs {
-            display: flex;
-            background: var(--surface);
-            border-bottom: 1px solid var(--border);
-            padding: 0 16px;
-            gap: 8px;
-            overflow-x: auto;
-            scrollbar-width: none;
-        }
-
-        .tabs::-webkit-scrollbar {
-            display: none;
-        }
-
-        .tab {
-            padding: 12px 16px;
-            border: none;
-            background: none;
-            color: var(--text-secondary);
-            font-size: 0.875rem;
-            font-weight: 500;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            white-space: nowrap;
-            position: relative;
-            transition: all 0.2s;
-        }
-
-        .tab.active {
-            color: var(--primary);
-        }
-
-        .tab.active::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: var(--primary);
-            border-radius: 2px 2px 0 0;
-        }
-
-        .tab-badge {
-            background: var(--danger);
-            color: white;
-            font-size: 0.625rem;
-            padding: 2px 6px;
-            border-radius: 10px;
-            min-width: 18px;
-            text-align: center;
-        }
-
-        .content {
-            flex: 1;
-            overflow-y: auto;
-            overflow-x: hidden;
-            -webkit-overflow-scrolling: touch;
-            padding: 16px;
-        }
-
-        .view {
-            display: none;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .view.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .card {
-            background: var(--surface);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-sm);
-            overflow: hidden;
-            margin-bottom: 16px;
-        }
-
-        .card-header {
-            padding: 16px 20px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .card-title {
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .card-body {
-            padding: 16px 20px;
-        }
-
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-
-        .metric-card {
-            background: var(--surface);
-            border-radius: var(--radius-lg);
-            padding: 16px 12px;
-            text-align: center;
-            box-shadow: var(--shadow-sm);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .metric-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: var(--neutral);
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(--text-primary); }
+        .app { display: flex; flex-direction: column; height: 100%; padding-top: var(--safe-top); padding-bottom: var(--safe-bottom); }
+        
+        .header { background: var(--primary-gradient); padding: 16px 20px; padding-top: calc(16px + var(--safe-top)); color: white; box-shadow: var(--shadow); z-index: 100; }
+        .header-content { display: flex; align-items: center; justify-content: space-between; }
+        .header-title { display: flex; align-items: center; gap: 12px; }
+        .header-icon { width: 40px; height: 40px; background: rgba(255,255,255,0.2); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; backdrop-filter: blur(10px); }
+        .header-text h1 { font-size: 1.25rem; font-weight: 700; margin: 0; }
+        .header-text p { font-size: 0.75rem; opacity: 0.9; margin: 0; }
+        .header-actions { display: flex; gap: 8px; }
+        
+        .icon-btn { width: 40px; height: 40px; border-radius: var(--radius); border: none; background: rgba(255,255,255,0.15); color: white; font-size: 1.25rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .icon-btn:active { background: rgba(255,255,255,0.3); transform: scale(0.95); }
+        
+        .tabs { display: flex; background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 16px; gap: 8px; overflow-x: auto; scrollbar-width: none; }
+        .tabs::-webkit-scrollbar { display: none; }
+        .tab { padding: 12px 16px; border: none; background: none; color: var(--text-secondary); font-size: 0.875rem; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap; position: relative; transition: all 0.2s; }
+        .tab.active { color: var(--primary); }
+        .tab.active::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: var(--primary); border-radius: 2px 2px 0 0; }
+        .tab-badge { background: var(--danger); color: white; font-size: 0.625rem; padding: 2px 6px; border-radius: 10px; min-width: 18px; text-align: center; }
+        
+        .content { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; padding: 16px; }
+        .view { display: none; animation: fadeIn 0.3s ease; }
+        .view.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .card { background: var(--surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden; margin-bottom: 16px; }
+        .card-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+        .card-title { font-size: 1rem; font-weight: 600; color: var(--text-primary); }
+        .card-body { padding: 16px 20px; }
+        
+        .metrics-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
+        .metric-card { background: var(--surface); border-radius: var(--radius-lg); padding: 16px 12px; text-align: center; box-shadow: var(--shadow-sm); position: relative; overflow: hidden; }
+        .metric-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--neutral); }
         .metric-card.danger::before { background: var(--danger); }
         .metric-card.success::before { background: var(--success); }
         .metric-card.info::before { background: var(--primary); }
-
-        .metric-icon {
-            font-size: 1.5rem;
-            margin-bottom: 8px;
-        }
-
-        .metric-value {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 4px;
-        }
-
-        .metric-label {
-            font-size: 0.625rem;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .client-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .client-item {
-            background: var(--surface);
-            border-radius: var(--radius-lg);
-            padding: 16px 20px;
-            box-shadow: var(--shadow-sm);
-            cursor: pointer;
-            transition: all 0.2s;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .client-item:active {
-            transform: scale(0.98);
-        }
-
-        .client-item::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 4px;
-            background: var(--neutral);
-        }
-
+        .metric-card.expense::before { background: var(--expense); }
+        .metric-icon { font-size: 1.5rem; margin-bottom: 8px; }
+        .metric-value { font-size: 1.125rem; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+        .metric-label { font-size: 0.625rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        .finance-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+        .finance-card { background: var(--surface); border-radius: var(--radius-lg); padding: 20px 12px; text-align: center; box-shadow: var(--shadow-sm); }
+        .finance-card.income { border-top: 3px solid var(--success); }
+        .finance-card.expense { border-top: 3px solid var(--expense); }
+        .finance-card.profit { border-top: 3px solid var(--primary); }
+        .finance-card.negative { border-top: 3px solid var(--danger); }
+        .finance-value { font-size: 1.25rem; font-weight: 700; margin-bottom: 4px; }
+        .finance-value.income { color: var(--success); }
+        .finance-value.expense { color: var(--expense); }
+        .finance-value.profit { color: var(--primary); }
+        .finance-value.negative { color: var(--danger); }
+        .finance-label { font-size: 0.75rem; color: var(--text-secondary); }
+        
+        .period-selector { display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto; padding-bottom: 4px; }
+        .period-btn { padding: 8px 16px; border: 2px solid var(--border); border-radius: 20px; background: var(--surface); color: var(--text-secondary); font-size: 0.875rem; cursor: pointer; white-space: nowrap; transition: all 0.2s; }
+        .period-btn.active { border-color: var(--primary); background: var(--primary); color: white; }
+        
+        .client-list { display: flex; flex-direction: column; gap: 12px; }
+        .client-item { background: var(--surface); border-radius: var(--radius-lg); padding: 16px 20px; box-shadow: var(--shadow-sm); cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; }
+        .client-item:active { transform: scale(0.98); }
+        .client-item::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--neutral); }
         .client-item.debt::before { background: var(--danger); }
         .client-item.credit::before { background: var(--success); }
         .client-item.new::before { background: var(--primary); }
-
-        .client-main {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 8px;
-        }
-
-        .client-info h3 {
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 4px;
-        }
-
-        .client-meta {
-            display: flex;
-            gap: 12px;
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-        }
-
-        .client-meta span {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .client-balance {
-            text-align: right;
-        }
-
-        .client-balance .amount {
-            font-size: 1.125rem;
-            font-weight: 700;
-        }
-
+        
+        .client-main { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+        .client-info h3 { font-size: 1rem; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+        .client-meta { display: flex; gap: 12px; font-size: 0.75rem; color: var(--text-secondary); }
+        .client-meta span { display: flex; align-items: center; gap: 4px; }
+        .client-balance { text-align: right; }
+        .client-balance .amount { font-size: 1.125rem; font-weight: 700; }
         .client-balance .amount.debt { color: var(--danger); }
         .client-balance .amount.credit { color: var(--success); }
         .client-balance .amount.zero { color: var(--neutral); }
-
-        .client-balance .label {
-            font-size: 0.625rem;
-            color: var(--text-tertiary);
-            text-transform: uppercase;
-        }
-
-        .new-badge {
-            display: inline-block;
-            background: var(--primary-light);
-            color: var(--primary-dark);
-            font-size: 0.625rem;
-            padding: 2px 8px;
-            border-radius: 12px;
-            margin-left: 8px;
-            font-weight: 600;
-        }
-
-        .timeline {
-            position: relative;
-            padding-left: 24px;
-        }
-
-        .timeline::before {
-            content: '';
-            position: absolute;
-            left: 8px;
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background: var(--border);
-        }
-
-        .timeline-date {
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 12px;
-            margin-left: -24px;
-            padding-left: 24px;
-            position: relative;
-        }
-
-        .timeline-date::before {
-            content: '';
-            position: absolute;
-            left: 5px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 8px;
-            height: 8px;
-            background: var(--text-secondary);
-            border-radius: 50%;
-        }
-
-        .timeline-item {
-            position: relative;
-            margin-bottom: 16px;
-            padding-left: 16px;
-        }
-
-        .timeline-item::before {
-            content: '';
-            position: absolute;
-            left: -20px;
-            top: 4px;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            border: 2px solid var(--surface);
-            box-shadow: 0 0 0 2px var(--border);
-        }
-
-        .timeline-item.sale::before,
-        .timeline-item.adc::before {
-            background: var(--danger);
-            box-shadow: 0 0 0 2px var(--danger-light);
-        }
-
-        .timeline-item.payment::before {
-            background: var(--success);
-            box-shadow: 0 0 0 2px var(--success-light);
-        }
-
-        .timeline-item.credit_use::before {
-            background: var(--warning);
-            box-shadow: 0 0 0 2px var(--warning-light);
-        }
-
-        .timeline-item.new::before {
-            background: var(--primary);
-            box-shadow: 0 0 0 2px var(--primary-light);
-        }
-
-        .timeline-content {
-            background: var(--surface);
-            border-radius: var(--radius);
-            padding: 12px 16px;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .timeline-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 4px;
-        }
-
-        .timeline-client {
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .timeline-amount {
-            font-weight: 700;
-            font-size: 1rem;
-        }
-
-        .timeline-amount.sale,
-        .timeline-amount.adc { color: var(--danger); }
+        .client-balance .label { font-size: 0.625rem; color: var(--text-tertiary); text-transform: uppercase; }
+        
+        .new-badge { display: inline-block; background: var(--primary-light); color: var(--primary-dark); font-size: 0.625rem; padding: 2px 8px; border-radius: 12px; margin-left: 8px; font-weight: 600; }
+        
+        .timeline { position: relative; padding-left: 24px; }
+        .timeline::before { content: ''; position: absolute; left: 8px; top: 0; bottom: 0; width: 2px; background: var(--border); }
+        .timeline-date { font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; margin-left: -24px; padding-left: 24px; position: relative; }
+        .timeline-date::before { content: ''; position: absolute; left: 5px; top: 50%; transform: translateY(-50%); width: 8px; height: 8px; background: var(--text-secondary); border-radius: 50%; }
+        .timeline-item { position: relative; margin-bottom: 16px; padding-left: 16px; }
+        .timeline-item::before { content: ''; position: absolute; left: -20px; top: 4px; width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--surface); box-shadow: 0 0 0 2px var(--border); }
+        .timeline-item.sale::before, .timeline-item.adc::before { background: var(--danger); box-shadow: 0 0 0 2px var(--danger-light); }
+        .timeline-item.payment::before { background: var(--success); box-shadow: 0 0 0 2px var(--success-light); }
+        .timeline-item.credit_use::before { background: var(--warning); box-shadow: 0 0 0 2px var(--warning-light); }
+        .timeline-item.new::before { background: var(--primary); box-shadow: 0 0 0 2px var(--primary-light); }
+        .timeline-item.expense::before { background: var(--expense); box-shadow: 0 0 0 2px var(--expense-light); }
+        .timeline-content { background: var(--surface); border-radius: var(--radius); padding: 12px 16px; box-shadow: var(--shadow-sm); }
+        .timeline-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+        .timeline-client { font-weight: 600; color: var(--text-primary); }
+        .timeline-amount { font-weight: 700; font-size: 1rem; }
+        .timeline-amount.sale, .timeline-amount.adc { color: var(--danger); }
         .timeline-amount.payment { color: var(--success); }
         .timeline-amount.credit_use { color: var(--warning); }
         .timeline-amount.new { color: var(--primary); }
-
-        .timeline-desc {
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-        }
-
-        .quick-input {
-            background: var(--surface);
-            border-top: 1px solid var(--border);
-            padding: 12px 16px;
-            padding-bottom: calc(12px + var(--safe-bottom));
-        }
-
-        .input-row {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-        }
-
-        .input-wrapper {
-            flex: 1;
-            position: relative;
-        }
-
-        .main-input {
-            width: 100%;
-            padding: 14px 18px;
-            border: 2px solid var(--border);
-            border-radius: var(--radius-xl);
-            font-size: 1rem;
-            background: var(--bg);
-            color: var(--text-primary);
-            outline: none;
-            transition: all 0.2s;
-        }
-
-        .main-input:focus {
-            border-color: var(--primary);
-            background: var(--surface);
-        }
-
-        .send-btn {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            border: none;
-            background: var(--primary-gradient);
-            color: white;
-            font-size: 1.25rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: var(--shadow);
-            transition: all 0.2s;
-            flex-shrink: 0;
-        }
-
-        .send-btn:active {
-            transform: scale(0.95);
-        }
-
-        .suggestions {
-            display: flex;
-            gap: 8px;
-            margin-top: 12px;
-            overflow-x: auto;
-            padding-bottom: 4px;
-        }
-
-        .suggestion-chip {
-            padding: 8px 14px;
-            background: var(--neutral-light);
-            border: none;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-            cursor: pointer;
-            white-space: nowrap;
-            transition: all 0.2s;
-        }
-
-        .suggestion-chip:active {
-            background: var(--primary-light);
-            color: var(--primary);
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--text-secondary);
-        }
-
-        .empty-icon {
-            font-size: 4rem;
-            margin-bottom: 16px;
-            opacity: 0.5;
-        }
-
-        .empty-title {
-            font-size: 1.125rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 8px;
-        }
-
-        .empty-desc {
-            font-size: 0.875rem;
-            max-width: 280px;
-            margin: 0 auto;
-        }
-
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(4px);
-            z-index: 1000;
-            padding: 20px;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal-overlay.active {
-            display: flex;
-        }
-
-        .modal {
-            background: var(--surface);
-            border-radius: var(--radius-xl);
-            width: 100%;
-            max-width: 400px;
-            max-height: 90vh;
-            overflow: hidden;
-            animation: modalIn 0.3s ease;
-        }
-
-        @keyframes modalIn {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        .modal-header {
-            padding: 20px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .modal-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .modal-body {
-            padding: 20px;
-            overflow-y: auto;
-            max-height: 60vh;
-        }
-
-        .modal-footer {
-            padding: 16px 20px;
-            border-top: 1px solid var(--border);
-            display: flex;
-            gap: 12px;
-        }
-
-        .btn {
-            flex: 1;
-            padding: 14px;
-            border: none;
-            border-radius: var(--radius);
-            font-size: 0.875rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .btn:active {
-            transform: scale(0.98);
-        }
-
-        .btn-primary {
-            background: var(--primary-gradient);
-            color: white;
-        }
-
-        .btn-secondary {
-            background: var(--neutral-light);
-            color: var(--text-secondary);
-        }
-
-        .btn-danger {
-            background: var(--danger-light);
-            color: var(--danger);
-        }
-
-        .form-group {
-            margin-bottom: 16px;
-        }
-
-        .form-label {
-            display: block;
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 6px;
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 12px 16px;
-            border: 2px solid var(--border);
-            border-radius: var(--radius);
-            font-size: 1rem;
-            background: var(--bg);
-            color: var(--text-primary);
-            outline: none;
-            transition: all 0.2s;
-        }
-
-        .form-input:focus {
-            border-color: var(--primary);
-            background: var(--surface);
-        }
-
-        .search-box {
-            position: relative;
-            margin-bottom: 16px;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 12px 16px 12px 44px;
-            border: 2px solid var(--border);
-            border-radius: var(--radius-xl);
-            font-size: 0.875rem;
-            background: var(--bg);
-            color: var(--text-primary);
-            outline: none;
-        }
-
-        .search-input:focus {
-            border-color: var(--primary);
-        }
-
-        .search-icon {
-            position: absolute;
-            left: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 1rem;
-            color: var(--text-tertiary);
-        }
-
-        .toast {
-            position: fixed;
-            bottom: calc(100px + var(--safe-bottom));
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: var(--text-primary);
-            color: white;
-            padding: 12px 24px;
-            border-radius: var(--radius-xl);
-            font-size: 0.875rem;
-            font-weight: 500;
-            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.2);
-            opacity: 0;
-            transition: all 0.3s;
-            z-index: 2000;
-            pointer-events: none;
-        }
-
-        .toast.show {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-        }
-
+        .timeline-amount.expense { color: var(--expense); }
+        .timeline-desc { font-size: 0.75rem; color: var(--text-secondary); }
+        
+        .expense-list { display: flex; flex-direction: column; gap: 12px; }
+        .expense-item { background: var(--surface); border-radius: var(--radius-lg); padding: 16px 20px; box-shadow: var(--shadow-sm); display: flex; justify-content: space-between; align-items: center; }
+        .expense-info h4 { font-size: 1rem; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+        .expense-date { font-size: 0.75rem; color: var(--text-secondary); }
+        .expense-amount { font-size: 1.25rem; font-weight: 700; color: var(--expense); }
+        .expense-actions { display: flex; gap: 8px; }
+        .btn-icon { width: 36px; height: 36px; border-radius: var(--radius); border: none; background: var(--neutral-light); cursor: pointer; font-size: 1rem; }
+        
+        .quick-input { background: var(--surface); border-top: 1px solid var(--border); padding: 12px 16px; padding-bottom: calc(12px + var(--safe-bottom)); }
+        .input-row { display: flex; gap: 12px; align-items: center; }
+        .input-wrapper { flex: 1; position: relative; }
+        .main-input { width: 100%; padding: 14px 18px; border: 2px solid var(--border); border-radius: var(--radius-xl); font-size: 1rem; background: var(--bg); color: var(--text-primary); outline: none; transition: all 0.2s; }
+        .main-input:focus { border-color: var(--primary); background: var(--surface); }
+        .send-btn { width: 50px; height: 50px; border-radius: 50%; border: none; background: var(--primary-gradient); color: white; font-size: 1.25rem; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow); transition: all 0.2s; flex-shrink: 0; }
+        .send-btn:active { transform: scale(0.95); }
+        .suggestions { display: flex; gap: 8px; margin-top: 12px; overflow-x: auto; padding-bottom: 4px; }
+        .suggestion-chip { padding: 8px 14px; background: var(--neutral-light); border: none; border-radius: 20px; font-size: 0.75rem; color: var(--text-secondary); cursor: pointer; white-space: nowrap; transition: all 0.2s; }
+        .suggestion-chip:active { background: var(--primary-light); color: var(--primary); }
+        
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--text-secondary); }
+        .empty-icon { font-size: 4rem; margin-bottom: 16px; opacity: 0.5; }
+        .empty-title { font-size: 1.125rem; font-weight: 600; color: var(--text-primary); margin-bottom: 8px; }
+        .empty-desc { font-size: 0.875rem; max-width: 280px; margin: 0 auto; }
+        
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 1000; padding: 20px; align-items: center; justify-content: center; }
+        .modal-overlay.active { display: flex; }
+        .modal { background: var(--surface); border-radius: var(--radius-xl); width: 100%; max-width: 400px; max-height: 90vh; overflow: hidden; animation: modalIn 0.3s ease; }
+        @keyframes modalIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        .modal-header { padding: 20px; border-bottom: 1px solid var(--border); }
+        .modal-title { font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; gap: 12px; }
+        .modal-body { padding: 20px; overflow-y: auto; max-height: 60vh; }
+        .modal-footer { padding: 16px 20px; border-top: 1px solid var(--border); display: flex; gap: 12px; }
+        
+        .btn { flex: 1; padding: 14px; border: none; border-radius: var(--radius); font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .btn:active { transform: scale(0.98); }
+        .btn-primary { background: var(--primary-gradient); color: white; }
+        .btn-secondary { background: var(--neutral-light); color: var(--text-secondary); }
+        .btn-danger { background: var(--danger-light); color: var(--danger); }
+        .btn-success { background: var(--success); color: white; }
+        .btn-expense { background: var(--expense); color: white; }
+        
+        .form-group { margin-bottom: 16px; }
+        .form-label { display: block; font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+        .form-input { width: 100%; padding: 12px 16px; border: 2px solid var(--border); border-radius: var(--radius); font-size: 1rem; background: var(--bg); color: var(--text-primary); outline: none; transition: all 0.2s; }
+        .form-input:focus { border-color: var(--primary); background: var(--surface); }
+        
+        .date-options { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+        .date-option { flex: 1; min-width: 80px; padding: 12px; border: 2px solid var(--border); border-radius: var(--radius); background: var(--bg); text-align: center; cursor: pointer; transition: all 0.2s; }
+        .date-option.active { border-color: var(--primary); background: var(--primary-light); color: var(--primary); }
+        .date-option .day { font-size: 0.875rem; font-weight: 600; }
+        .date-option .date { font-size: 0.75rem; color: var(--text-secondary); }
+        
+        .search-box { position: relative; margin-bottom: 16px; }
+        .search-input { width: 100%; padding: 12px 16px 12px 44px; border: 2px solid var(--border); border-radius: var(--radius-xl); font-size: 0.875rem; background: var(--bg); color: var(--text-primary); outline: none; }
+        .search-input:focus { border-color: var(--primary); }
+        .search-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-size: 1rem; color: var(--text-tertiary); }
+        
+        .toast { position: fixed; bottom: calc(100px + var(--safe-bottom)); left: 50%; transform: translateX(-50%) translateY(100px); background: var(--text-primary); color: white; padding: 12px 24px; border-radius: var(--radius-xl); font-size: 0.875rem; font-weight: 500; box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.2); opacity: 0; transition: all 0.3s; z-index: 2000; pointer-events: none; }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
         .toast.success { background: var(--success); }
         .toast.error { background: var(--danger); }
         .toast.info { background: var(--primary); }
-
+        .toast.expense { background: var(--expense); }
+        
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
     <div class="app">
-        <!-- Header -->
         <header class="header">
             <div class="header-content">
                 <div class="header-title">
@@ -840,26 +264,18 @@
                     </div>
                 </div>
                 <div class="header-actions">
-                    <button class="icon-btn" onclick="toggleTheme()">🌙</button>
                     <button class="icon-btn" onclick="showSettings()">⚙️</button>
                 </div>
             </div>
         </header>
 
-        <!-- Tabs -->
         <nav class="tabs">
-            <button class="tab active" onclick="switchTab('dashboard')" data-tab="dashboard">
-                📊 Resumo
-            </button>
-            <button class="tab" onclick="switchTab('clients')" data-tab="clients">
-                👥 Clientes <span class="tab-badge" id="clientCount">0</span>
-            </button>
-            <button class="tab" onclick="switchTab('history')" data-tab="history">
-                📝 Registros
-            </button>
+            <button class="tab active" onclick="switchTab('dashboard')" data-tab="dashboard">📊 Resumo</button>
+            <button class="tab" onclick="switchTab('clients')" data-tab="clients">👥 Clientes <span class="tab-badge" id="clientCount">0</span></button>
+            <button class="tab" onclick="switchTab('finance')" data-tab="finance">💰 Finanças</button>
+            <button class="tab" onclick="switchTab('history')" data-tab="history">📝 Registros</button>
         </nav>
 
-        <!-- Content -->
         <main class="content">
             <!-- Dashboard -->
             <div class="view active" id="dashboardView">
@@ -878,6 +294,11 @@
                         <div class="metric-icon">👥</div>
                         <div class="metric-value" id="metricClients">0</div>
                         <div class="metric-label">Clientes</div>
+                    </div>
+                    <div class="metric-card expense">
+                        <div class="metric-icon">💸</div>
+                        <div class="metric-value" id="metricExpenses">R$ 0</div>
+                        <div class="metric-label">Gastos Mês</div>
                     </div>
                 </div>
 
@@ -916,6 +337,44 @@
                 <div class="client-list" id="clientList"></div>
             </div>
 
+            <!-- Finance -->
+            <div class="view" id="financeView">
+                <div class="finance-summary">
+                    <div class="finance-card income">
+                        <div class="finance-value income" id="financeIncome">R$ 0</div>
+                        <div class="finance-label">💰 Ganhos</div>
+                    </div>
+                    <div class="finance-card expense">
+                        <div class="finance-value expense" id="financeExpense">R$ 0</div>
+                        <div class="finance-label">💸 Gastos</div>
+                    </div>
+                    <div class="finance-card profit" id="financeResultCard">
+                        <div class="finance-value profit" id="financeResult">R$ 0</div>
+                        <div class="finance-label">📈 Resultado</div>
+                    </div>
+                </div>
+
+                <div class="period-selector">
+                    <button class="period-btn active" onclick="setFinancePeriod('today')">Hoje</button>
+                    <button class="period-btn" onclick="setFinancePeriod('week')">7 dias</button>
+                    <button class="period-btn" onclick="setFinancePeriod('month')">Este mês</button>
+                    <button class="period-btn" onclick="setFinancePeriod('lastMonth')">Mês passado</button>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">💸 Últimos Gastos</span>
+                    </div>
+                    <div class="card-body" id="expenseList">
+                        <div class="empty-state" style="padding: 30px;">
+                            <div class="empty-icon">💸</div>
+                            <div class="empty-title">Nenhum gasto registrado</div>
+                            <div class="empty-desc">Use "add custo 50 descricao" para registrar.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- History -->
             <div class="view" id="historyView">
                 <div class="timeline" id="timeline"></div>
@@ -926,11 +385,47 @@
         <div class="quick-input">
             <div class="input-row">
                 <div class="input-wrapper">
-                    <input type="text" class="main-input" id="quickCommand" placeholder="Ex: add joao, joao adc 50, maria pg 30" onkeypress="if(event.key==='Enter')processQuickCommand()">
+                    <input type="text" class="main-input" id="quickCommand" placeholder="Ex: add joao, joao adc 50, add custo 30" onkeypress="if(event.key==='Enter')processQuickCommand()">
                 </div>
                 <button class="send-btn" onclick="processQuickCommand()">➤</button>
             </div>
             <div class="suggestions" id="suggestions"></div>
+        </div>
+
+        <!-- Expense Date Modal -->
+        <div class="modal-overlay" id="expenseDateModal">
+            <div class="modal">
+                <div class="modal-header">
+                    <div class="modal-title">📅 Data do Gasto</div>
+                </div>
+                <div class="modal-body">
+                    <p style="margin-bottom: 16px; color: var(--text-secondary);">Quando ocorreu este gasto?</p>
+                    <div class="date-options">
+                        <div class="date-option active" onclick="selectExpenseDate('today')">
+                            <div class="day">Hoje</div>
+                            <div class="date" id="todayDate"></div>
+                        </div>
+                        <div class="date-option" onclick="selectExpenseDate('yesterday')">
+                            <div class="day">Ontem</div>
+                            <div class="date" id="yesterdayDate"></div>
+                        </div>
+                        <div class="date-option" onclick="selectExpenseDate('other')">
+                            <div class="day">Outro</div>
+                            <div class="date">dia</div>
+                        </div>
+                    </div>
+                    <div id="customDateInput" class="hidden">
+                        <label class="form-label">Data específica</label>
+                        <input type="date" class="form-input" id="expenseCustomDate">
+                    </div>
+                    <input type="hidden" id="pendingExpenseValue">
+                    <input type="hidden" id="pendingExpenseDesc">
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="closeModal('expenseDateModal')">Cancelar</button>
+                    <button class="btn btn-expense" onclick="confirmExpenseDate()">Confirmar</button>
+                </div>
+            </div>
         </div>
 
         <!-- Edit Modal -->
@@ -973,6 +468,9 @@
                     <div class="modal-title">⚙️ Configurações</div>
                 </div>
                 <div class="modal-body">
+                    <button class="btn btn-primary" onclick="toggleTheme(); closeModal('settingsModal');" style="width:100%;margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:8px;">
+                        <span id="themeIcon">🌙</span> <span id="themeText">Modo Noturno</span>
+                    </button>
                     <button class="btn btn-primary" onclick="exportData()" style="width:100%;margin-bottom:8px;">📤 Exportar</button>
                     <input type="file" id="importFile" hidden accept=".json" onchange="importData(this)">
                     <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()" style="width:100%;margin-bottom:8px;">📥 Importar</button>
@@ -984,15 +482,16 @@
             </div>
         </div>
 
-        <!-- Toast -->
         <div class="toast" id="toast"></div>
     </div>
 
     <script>
-        const DB_KEY = 'fiadobot_v4';
+        const DB_KEY = 'fiadobot_v5';
+        let currentFinancePeriod = 'today';
+        let selectedExpenseDate = 'today';
 
         function getDB() {
-            return JSON.parse(localStorage.getItem(DB_KEY) || '{}');
+            return JSON.parse(localStorage.getItem(DB_KEY) || '{"clients":{},"expenses":[]}');
         }
 
         function saveDB(data) {
@@ -1002,8 +501,8 @@
 
         function getClient(name, create = false) {
             const db = getDB();
-            if (!db[name] && create) {
-                db[name] = {
+            if (!db.clients[name] && create) {
+                db.clients[name] = {
                     name: name,
                     balance: 0,
                     transactions: [],
@@ -1015,7 +514,7 @@
                 };
                 saveDB(db);
             }
-            return db[name];
+            return db.clients[name];
         }
 
         function updateUI() {
@@ -1023,157 +522,97 @@
             updateClientList();
             updateTimeline();
             updateSuggestions();
-            document.getElementById('clientCount').textContent = Object.keys(getDB()).length;
+            updateFinanceView();
+            updateThemeButton();
+            document.getElementById('clientCount').textContent = Object.keys(getDB().clients).length;
         }
 
         function updateMetrics() {
             const db = getDB();
-            let debt = 0, credit = 0;
+            let debt = 0, credit = 0, monthExpenses = 0;
             const newClients = [];
             const debtors = [];
+            
+            // Calcula gastos do mês atual
+            const now = new Date();
+            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+            const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
 
-            Object.values(db).forEach(c => {
+            Object.values(db.clients).forEach(c => {
                 if (c.balance > 0) {
                     debt += c.balance;
                     if (c.balance > 50) debtors.push(c);
                 } else if (c.balance < 0) {
                     credit += Math.abs(c.balance);
                 }
-                
                 if (c.isNew || (c.created && new Date() - new Date(c.created) < 24*60*60*1000)) {
                     newClients.push(c);
                 }
             });
 
+            (db.expenses || []).forEach(e => {
+                const eDate = new Date(e.date);
+                if (eDate >= startOfMonth && eDate <= endOfMonth) {
+                    monthExpenses += e.value;
+                }
+            });
+
             document.getElementById('metricDebt').textContent = formatMoney(debt);
             document.getElementById('metricCredit').textContent = formatMoney(credit);
-            document.getElementById('metricClients').textContent = Object.keys(db).length;
+            document.getElementById('metricClients').textContent = Object.keys(db.clients).length;
+            document.getElementById('metricExpenses').textContent = formatMoney(monthExpenses);
 
             const newEl = document.getElementById('newClientsList');
             if (newClients.length === 0) {
-                newEl.innerHTML = `
-                    <div class="empty-state" style="padding: 30px;">
-                        <div class="empty-icon">👤</div>
-                        <div class="empty-title">Nenhum cliente novo</div>
-                        <div class="empty-desc">Use <code>add nome</code> para cadastrar.</div>
-                    </div>`;
+                newEl.innerHTML = `<div class="empty-state" style="padding: 30px;"><div class="empty-icon">👤</div><div class="empty-title">Nenhum cliente novo</div><div class="empty-desc">Use <code>add nome</code> para cadastrar.</div></div>`;
             } else {
-                newEl.innerHTML = newClients.map(c => `
-                    <div class="client-item new" onclick="showClientDetail('${c.name}')" style="margin-bottom:8px;">
-                        <div class="client-main">
-                            <div class="client-info">
-                                <h3>${capitalize(c.name)} <span class="new-badge">NOVO</span></h3>
-                                <div class="client-meta">
-                                    <span>Cadastrado ${formatDate(c.created)}</span>
-                                </div>
-                            </div>
-                            <div class="client-balance">
-                                <div class="amount zero">${formatMoney(0)}</div>
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
+                newEl.innerHTML = newClients.map(c => `<div class="client-item new" onclick="showClientDetail('${c.name}')" style="margin-bottom:8px;"><div class="client-main"><div class="client-info"><h3>${capitalize(c.name)} <span class="new-badge">NOVO</span></h3><div class="client-meta"><span>Cadastrado ${formatDate(c.created)}</span></div></div><div class="client-balance"><div class="amount zero">${formatMoney(0)}</div></div></div></div>`).join('');
             }
 
             const debtEl = document.getElementById('attentionList');
             if (debtors.length === 0) {
-                debtEl.innerHTML = `
-                    <div class="empty-state" style="padding: 30px;">
-                        <div class="empty-icon">✅</div>
-                        <div class="empty-title">Tudo em ordem!</div>
-                    </div>`;
+                debtEl.innerHTML = `<div class="empty-state" style="padding: 30px;"><div class="empty-icon">✅</div><div class="empty-title">Tudo em ordem!</div></div>`;
             } else {
-                debtEl.innerHTML = debtors.map(c => `
-                    <div class="client-item debt" onclick="showClientDetail('${c.name}')" style="margin-bottom:8px;">
-                        <div class="client-main">
-                            <div class="client-info">
-                                <h3>${capitalize(c.name)}</h3>
-                            </div>
-                            <div class="client-balance">
-                                <div class="amount debt">${formatMoney(c.balance)}</div>
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
+                debtEl.innerHTML = debtors.map(c => `<div class="client-item debt" onclick="showClientDetail('${c.name}')" style="margin-bottom:8px;"><div class="client-main"><div class="client-info"><h3>${capitalize(c.name)}</h3></div><div class="client-balance"><div class="amount debt">${formatMoney(c.balance)}</div></div></div></div>`).join('');
             }
         }
 
         function updateClientList(filter = '') {
             const db = getDB();
-            const clients = Object.values(db)
-                .sort((a, b) => {
-                    if (a.balance > 0 && b.balance <= 0) return -1;
-                    if (a.balance <= 0 && b.balance > 0) return 1;
-                    return a.name.localeCompare(b.name);
-                })
+            const clients = Object.values(db.clients)
+                .sort((a, b) => { if (a.balance > 0 && b.balance <= 0) return -1; if (a.balance <= 0 && b.balance > 0) return 1; return a.name.localeCompare(b.name); })
                 .filter(c => c.name.toLowerCase().includes(filter.toLowerCase()));
 
             const list = document.getElementById('clientList');
-            
             if (clients.length === 0) {
-                list.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-icon">🔍</div>
-                        <div class="empty-title">${filter ? 'Nenhum resultado' : 'Sem clientes'}</div>
-                        <div class="empty-desc">${filter ? 'Tente outro termo.' : 'Use <code>add nome</code> para começar.'}</div>
-                    </div>`;
+                list.innerHTML = `<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">${filter ? 'Nenhum resultado' : 'Sem clientes'}</div><div class="empty-desc">${filter ? 'Tente outro termo.' : 'Use <code>add nome</code> para começar.'}</div></div>`;
                 return;
             }
 
             list.innerHTML = clients.map(c => {
                 const isNew = c.isNew || (c.created && new Date() - new Date(c.created) < 24*60*60*1000);
-                return `
-                <div class="client-item ${c.balance > 0 ? 'debt' : c.balance < 0 ? 'credit' : isNew ? 'new' : ''}" onclick="showClientDetail('${c.name}')">
-                    <div class="client-main">
-                        <div class="client-info">
-                            <h3>${capitalize(c.name)} ${isNew ? '<span class="new-badge">NOVO</span>' : ''}</h3>
-                            <div class="client-meta">
-                                ${c.phone ? `<span>📞 ${c.phone}</span>` : ''}
-                                ${c.whatsapp ? `<span>💬 ${c.whatsapp}</span>` : ''}
-                                <span>📝 ${c.transactions.length}</span>
-                            </div>
-                        </div>
-                        <div class="client-balance">
-                            <div class="amount ${c.balance > 0 ? 'debt' : c.balance < 0 ? 'credit' : 'zero'}">
-                                ${c.balance < 0 ? '+' : ''}${formatMoney(Math.abs(c.balance))}
-                            </div>
-                            <div class="label">${c.balance < 0 ? 'CRÉDITO' : c.balance > 0 ? 'DEVENDO' : 'ZERADO'}</div>
-                        </div>
-                    </div>
-                </div>
-            `}).join('');
+                return `<div class="client-item ${c.balance > 0 ? 'debt' : c.balance < 0 ? 'credit' : isNew ? 'new' : ''}" onclick="showClientDetail('${c.name}')"><div class="client-main"><div class="client-info"><h3>${capitalize(c.name)} ${isNew ? '<span class="new-badge">NOVO</span>' : ''}</h3><div class="client-meta">${c.phone ? `<span>📞 ${c.phone}</span>` : ''}${c.whatsapp ? `<span>💬 ${c.whatsapp}</span>` : ''}<span>📝 ${c.transactions.length}</span></div></div><div class="client-balance"><div class="amount ${c.balance > 0 ? 'debt' : c.balance < 0 ? 'credit' : 'zero'}">${c.balance < 0 ? '+' : ''}${formatMoney(Math.abs(c.balance))}</div><div class="label">${c.balance < 0 ? 'CRÉDITO' : c.balance > 0 ? 'DEVENDO' : 'ZERADO'}</div></div></div></div>`;
+            }).join('');
         }
 
         function updateTimeline() {
             const db = getDB();
             const all = [];
             
-            Object.values(db).forEach(c => {
-                if (c.created) {
-                    all.push({
-                        type: 'new',
-                        clientName: c.name,
-                        value: 0,
-                        date: c.created,
-                        description: 'Cliente cadastrado'
-                    });
-                }
-                
-                c.transactions.forEach(t => {
-                    all.push({...t, clientName: c.name, clientWhatsApp: c.whatsapp});
-                });
+            Object.values(db.clients).forEach(c => {
+                if (c.created) all.push({ type: 'new', clientName: c.name, value: 0, date: c.created, description: 'Cliente cadastrado' });
+                c.transactions.forEach(t => all.push({...t, clientName: c.name, clientWhatsApp: c.whatsapp}));
+            });
+            
+            (db.expenses || []).forEach(e => {
+                all.push({ type: 'expense', value: e.value, date: e.date, description: e.description, isExpense: true });
             });
 
             all.sort((a, b) => new Date(b.date) - new Date(a.date));
 
             const timeline = document.getElementById('timeline');
-            
             if (all.length === 0) {
-                timeline.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-icon">📝</div>
-                        <div class="empty-title">Sem registros</div>
-                    </div>`;
+                timeline.innerHTML = `<div class="empty-state"><div class="empty-icon">📝</div><div class="empty-title">Sem registros</div></div>`;
                 return;
             }
 
@@ -1190,28 +629,121 @@
                     <div class="timeline-item ${t.type}">
                         <div class="timeline-content">
                             <div class="timeline-header">
-                                <span class="timeline-client">${capitalize(t.clientName)}</span>
+                                <span class="timeline-client">${t.isExpense ? '💸 ' + capitalize(t.description) : capitalize(t.clientName)}</span>
                                 <span class="timeline-amount ${t.type}">
-                                    ${t.type === 'new' ? '✨ NOVO' : 
-                                      t.type === 'sale' || t.type === 'adc' ? '+' : 
-                                      t.type === 'credit_use' ? '💳' : '-'}${t.value > 0 ? formatMoney(t.value) : ''}
+                                    ${t.type === 'new' ? '✨ NOVO' : t.type === 'expense' ? '-' : t.type === 'sale' || t.type === 'adc' ? '+' : t.type === 'credit_use' ? '💳' : '-'}${t.value > 0 ? formatMoney(t.value) : ''}
                                 </span>
                             </div>
-                            <div class="timeline-desc">${t.description || 'Registro'}</div>
+                            <div class="timeline-desc">${t.isExpense ? 'Gasto registrado' : t.description || 'Registro'}</div>
                         </div>
                     </div>
                 `).join('')}
             `).join('');
         }
 
+        function updateFinanceView() {
+            const db = getDB();
+            const { start, end } = getPeriodDates(currentFinancePeriod);
+            
+            let income = 0, expense = 0;
+            
+            Object.values(db.clients).forEach(c => {
+                c.transactions.forEach(t => {
+                    const tDate = new Date(t.date);
+                    if (tDate >= start && tDate <= end) {
+                        if (t.type === 'payment') income += t.value;
+                    }
+                });
+            });
+            
+            (db.expenses || []).forEach(e => {
+                const eDate = new Date(e.date);
+                if (eDate >= start && eDate <= end) expense += e.value;
+            });
+            
+            const result = income - expense;
+            
+            document.getElementById('financeIncome').textContent = formatMoney(income);
+            document.getElementById('financeExpense').textContent = formatMoney(expense);
+            document.getElementById('financeResult').textContent = (result >= 0 ? '+' : '-') + formatMoney(Math.abs(result));
+            
+            const resultCard = document.getElementById('financeResultCard');
+            const resultValue = document.getElementById('financeResult');
+            if (result >= 0) {
+                resultCard.className = 'finance-card profit';
+                resultValue.className = 'finance-value profit';
+            } else {
+                resultCard.className = 'finance-card negative';
+                resultValue.className = 'finance-value negative';
+            }
+            
+            const expenseList = document.getElementById('expenseList');
+            const periodExpenses = (db.expenses || [])
+                .filter(e => { const d = new Date(e.date); return d >= start && d <= end; })
+                .sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            if (periodExpenses.length === 0) {
+                expenseList.innerHTML = `<div class="empty-state" style="padding: 30px;"><div class="empty-icon">💸</div><div class="empty-title">Nenhum gasto no período</div><div class="empty-desc">Use "add custo 50 descricao" para registrar.</div></div>`;
+            } else {
+                expenseList.innerHTML = periodExpenses.map(e => `
+                    <div class="expense-item">
+                        <div class="expense-info">
+                            <h4>${capitalize(e.description)}</h4>
+                            <div class="expense-date">${formatDate(e.date)}</div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:12px;">
+                            <div class="expense-amount">${formatMoney(e.value)}</div>
+                            <div class="expense-actions">
+                                <button class="btn-icon" onclick="deleteExpense('${e.id}')">🗑️</button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function getPeriodDates(period) {
+            const now = new Date();
+            const end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+            let start = new Date();
+            
+            switch(period) {
+                case 'today':
+                    start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+                    break;
+                case 'week':
+                    start = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                    start.setHours(0, 0, 0, 0);
+                    break;
+                case 'month':
+                    start = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0);
+                    break;
+                case 'lastMonth':
+                    start = new Date(now.getFullYear(), now.getMonth() - 1, 1, 0, 0, 0);
+                    end.setTime(new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59).getTime());
+                    break;
+            }
+            return { start, end };
+        }
+
+        function setFinancePeriod(period) {
+            currentFinancePeriod = period;
+            document.querySelectorAll('.period-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            updateFinanceView();
+        }
+
         function updateSuggestions() {
             const db = getDB();
-            const names = Object.keys(db).slice(0, 3);
-            const cmds = ['add ', ...names.map(n => `${n} adc `), ...names.map(n => `${n} pg `)];
-            
-            document.getElementById('suggestions').innerHTML = cmds.slice(0, 5).map(cmd => `
-                <button class="suggestion-chip" onclick="setCommand('${cmd}')">${cmd}</button>
-            `).join('');
+            const names = Object.keys(db.clients).slice(0, 2);
+            const cmds = ['add ', 'add custo ', ...names.map(n => `${n} adc `), ...names.map(n => `${n} pg `)];
+            document.getElementById('suggestions').innerHTML = cmds.slice(0, 5).map(cmd => `<button class="suggestion-chip" onclick="setCommand('${cmd}')">${cmd}</button>`).join('');
+        }
+
+        function updateThemeButton() {
+            const isDark = document.documentElement.hasAttribute('data-theme');
+            document.getElementById('themeIcon').textContent = isDark ? '☀️' : '🌙';
+            document.getElementById('themeText').textContent = isDark ? 'Modo Claro' : 'Modo Noturno';
         }
 
         function processQuickCommand() {
@@ -1221,18 +753,68 @@
 
             const parts = cmd.split(/\s+/);
             
-            if (cmd === 'clientes' || cmd === 'cliente') {
-                switchTab('clients');
-                input.value = '';
+            if (cmd === 'clientes' || cmd === 'cliente') { switchTab('clients'); input.value = ''; return; }
+            if (cmd === 'resumo' || cmd === 'dashboard') { switchTab('dashboard'); input.value = ''; return; }
+            if (cmd === 'historico' || cmd === 'registros' || cmd === 'hist') { switchTab('history'); input.value = ''; return; }
+            if (cmd === 'financas' || cmd === 'financeiro') { switchTab('finance'); input.value = ''; return; }
+
+            // Comando: add custo [valor] [descricao]
+            if (parts[0] === 'add' && parts[1] === 'custo') {
+                if (parts.length < 3) {
+                    showToast('Use: add custo [valor] [descricao]', 'error');
+                    return;
+                }
+                
+                // Verifica se tem data no formato DD/MM ou DD/MM/YYYY
+                let dateStr = null;
+                let valueIndex = 2;
+                let descIndex = 3;
+                
+                if (parts[2].match(/^\d{1,2}\/\d{1,2}$/) || parts[2].match(/^\d{1,2}\/\d{1,2}\/\d{4}$/)) {
+                    dateStr = parts[2];
+                    valueIndex = 3;
+                    descIndex = 4;
+                }
+                
+                const value = parseFloat(parts[valueIndex]?.replace(',', '.'));
+                if (isNaN(value) || value <= 0) {
+                    showToast('Valor inválido', 'error');
+                    return;
+                }
+                
+                const description = parts.slice(descIndex).join(' ') || 'Gasto';
+                
+                if (dateStr) {
+                    // Data fornecida diretamente
+                    let [day, month, year] = dateStr.split('/');
+                    if (!year) year = new Date().getFullYear();
+                    const date = new Date(year, month - 1, day);
+                    addExpense(value, description, date.toISOString());
+                    showToast(`💸 Gasto de ${formatMoney(value)} registrado para ${dateStr}`, 'expense');
+                    input.value = '';
+                } else {
+                    // Abre modal para escolher data
+                    document.getElementById('pendingExpenseValue').value = value;
+                    document.getElementById('pendingExpenseDesc').value = description;
+                    setupDateModal();
+                    document.getElementById('expenseDateModal').classList.add('active');
+                }
                 return;
             }
-            if (cmd === 'resumo' || cmd === 'dashboard') {
-                switchTab('dashboard');
-                input.value = '';
-                return;
-            }
-            if (cmd === 'historico' || cmd === 'registros' || cmd === 'hist') {
-                switchTab('history');
+
+            // Comando: custo ontem/anteontem [valor] [desc]
+            if (parts[0] === 'custo' && (parts[1] === 'ontem' || parts[1] === 'anteontem' || parts[1] === 'hoje')) {
+                const dayOffset = parts[1] === 'ontem' ? -1 : parts[1] === 'anteontem' ? -2 : 0;
+                const value = parseFloat(parts[2]?.replace(',', '.'));
+                if (isNaN(value) || value <= 0) {
+                    showToast('Valor inválido. Use: custo ontem 50 almoço', 'error');
+                    return;
+                }
+                const description = parts.slice(3).join(' ') || 'Gasto';
+                const date = new Date();
+                date.setDate(date.getDate() + dayOffset);
+                addExpense(value, description, date.toISOString());
+                showToast(`💸 Gasto de ${formatMoney(value)} registrado para ${parts[1]}`, 'expense');
                 input.value = '';
                 return;
             }
@@ -1240,23 +822,8 @@
             if (parts[0] === 'add' && parts.length === 2) {
                 const name = parts[1];
                 const db = getDB();
-                
-                if (db[name]) {
-                    showToast(`❌ Cliente "${capitalize(name)}" já existe`, 'error');
-                    return;
-                }
-                
-                db[name] = {
-                    name: name,
-                    balance: 0,
-                    transactions: [],
-                    phone: '',
-                    whatsapp: '',
-                    notes: '',
-                    created: new Date().toISOString(),
-                    isNew: true
-                };
-                
+                if (db.clients[name]) { showToast(`❌ Cliente "${capitalize(name)}" já existe`, 'error'); return; }
+                db.clients[name] = { name: name, balance: 0, transactions: [], phone: '', whatsapp: '', notes: '', created: new Date().toISOString(), isNew: true };
                 saveDB(db);
                 showToast(`✅ Cliente "${capitalize(name)}" cadastrado!`, 'success');
                 input.value = '';
@@ -1268,164 +835,135 @@
                 const name = parts[0];
                 const action = parts[1];
                 const value = parseFloat(parts[2].replace(',', '.'));
-
-                if (isNaN(value) || value <= 0) {
-                    showToast('Valor inválido', 'error');
-                    return;
-                }
+                if (isNaN(value) || value <= 0) { showToast('Valor inválido', 'error'); return; }
 
                 const db = getDB();
-                let client = db[name];
+                let client = db.clients[name];
                 
                 if (!client && (action === 'adc' || action === 'add')) {
                     if (confirm(`Cliente "${capitalize(name)}" não existe. Criar e adicionar venda?`)) {
-                        client = {
-                            name: name,
-                            balance: 0,
-                            transactions: [],
-                            phone: '',
-                            whatsapp: '',
-                            notes: '',
-                            created: new Date().toISOString(),
-                            isNew: true
-                        };
-                    } else {
-                        return;
-                    }
-                } else if (!client) {
-                    showToast(`❌ Cliente "${capitalize(name)}" não encontrado. Use "add ${name}" para cadastrar.`, 'error');
-                    return;
-                }
+                        client = { name: name, balance: 0, transactions: [], phone: '', whatsapp: '', notes: '', created: new Date().toISOString(), isNew: true };
+                    } else { return; }
+                } else if (!client) { showToast(`❌ Cliente "${capitalize(name)}" não encontrado`, 'error'); return; }
 
                 if (action === 'adc' || action === 'add') {
-                    let creditUsed = 0;
-                    let remaining = value;
-
+                    let creditUsed = 0, remaining = value;
                     if (client.balance < 0) {
                         const credit = Math.abs(client.balance);
                         if (credit >= value) {
-                            client.balance += value;
-                            creditUsed = value;
-                            remaining = 0;
-                            client.transactions.push({
-                                type: 'credit_use',
-                                value: value,
-                                date: new Date().toISOString(),
-                                description: `Usou ${formatMoney(value)} de crédito`
-                            });
+                            client.balance += value; creditUsed = value; remaining = 0;
+                            client.transactions.push({ type: 'credit_use', value: value, date: new Date().toISOString(), description: `Usou ${formatMoney(value)} de crédito` });
                         } else {
-                            creditUsed = credit;
-                            remaining = value - credit;
-                            client.balance = 0;
-                            client.transactions.push({
-                                type: 'credit_use',
-                                value: credit,
-                                date: new Date().toISOString(),
-                                description: `Usou ${formatMoney(credit)} de crédito`
-                            });
+                            creditUsed = credit; remaining = value - credit; client.balance = 0;
+                            client.transactions.push({ type: 'credit_use', value: credit, date: new Date().toISOString(), description: `Usou ${formatMoney(credit)} de crédito` });
                         }
                     }
-
                     if (remaining > 0) {
                         client.balance += remaining;
-                        client.transactions.push({
-                            type: 'adc',
-                            value: remaining,
-                            date: new Date().toISOString(),
-                            description: creditUsed > 0 ? 'Venda (usou crédito)' : 'Venda fiado'
-                        });
+                        client.transactions.push({ type: 'adc', value: remaining, date: new Date().toISOString(), description: creditUsed > 0 ? 'Venda (usou crédito)' : 'Venda fiado' });
                     }
-
-                    if (client.isNew && client.transactions.length > (creditUsed > 0 ? 1 : 0)) {
-                        client.isNew = false;
-                    }
-
-                    db[name] = client;
-                    saveDB(db);
-
-                    if (creditUsed > 0) {
-                        showToast(`💳 Usou ${formatMoney(creditUsed)} de crédito + ${formatMoney(remaining)} adicionado`, 'success');
-                    } else {
-                        showToast(`✅ ${formatMoney(value)} adicionado para ${capitalize(name)}`, 'success');
-                    }
-
+                    if (client.isNew && client.transactions.length > (creditUsed > 0 ? 1 : 0)) client.isNew = false;
+                    db.clients[name] = client; saveDB(db);
+                    showToast(creditUsed > 0 ? `💳 Usou ${formatMoney(creditUsed)} de crédito + ${formatMoney(remaining)} adicionado` : `✅ ${formatMoney(value)} adicionado para ${capitalize(name)}`, 'success');
                 } else if (action === 'pg' || action === 'pag') {
                     client.balance -= value;
-                    client.transactions.push({
-                        type: 'payment',
-                        value: value,
-                        date: new Date().toISOString(),
-                        description: 'Pagamento recebido'
-                    });
-
+                    client.transactions.push({ type: 'payment', value: value, date: new Date().toISOString(), description: 'Pagamento recebido' });
                     if (client.isNew) client.isNew = false;
-
-                    db[name] = client;
-                    saveDB(db);
-
-                    if (client.balance < 0) {
-                        showToast(`💰 ${capitalize(name)} tem ${formatMoney(Math.abs(client.balance))} de crédito!`, 'success');
-                    } else if (client.balance === 0) {
-                        showToast(`✅ ${capitalize(name)} quitou!`, 'success');
-                    } else {
-                        showToast(`✅ Pagamento de ${formatMoney(value)} registrado`, 'success');
-                    }
+                    db.clients[name] = client; saveDB(db);
+                    if (client.balance < 0) showToast(`💰 ${capitalize(name)} tem ${formatMoney(Math.abs(client.balance))} de crédito!`, 'success');
+                    else if (client.balance === 0) showToast(`✅ ${capitalize(name)} quitou!`, 'success');
+                    else showToast(`✅ Pagamento de ${formatMoney(value)} registrado`, 'success');
                 }
-
                 input.value = '';
                 return;
             }
 
             if (parts.length === 1 && parts[0]) {
                 const name = parts[0];
-                if (getDB()[name]) {
-                    showClientDetail(name);
-                    input.value = '';
-                } else {
-                    showToast(`❌ "${capitalize(name)}" não encontrado. Use "add ${name}" para cadastrar.`, 'error');
-                }
+                if (getDB().clients[name]) { showClientDetail(name); input.value = ''; }
+                else { showToast(`❌ "${capitalize(name)}" não encontrado`, 'error'); }
             }
+        }
+
+        function setupDateModal() {
+            const today = new Date();
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+            
+            document.getElementById('todayDate').textContent = today.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+            document.getElementById('yesterdayDate').textContent = yesterday.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+            document.getElementById('expenseCustomDate').valueAsDate = today;
+            
+            selectedExpenseDate = 'today';
+            document.querySelectorAll('.date-option').forEach(opt => opt.classList.remove('active'));
+            document.querySelector('.date-option').classList.add('active');
+            document.getElementById('customDateInput').classList.add('hidden');
+        }
+
+        function selectExpenseDate(option) {
+            selectedExpenseDate = option;
+            document.querySelectorAll('.date-option').forEach(opt => opt.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            document.getElementById('customDateInput').classList.toggle('hidden', option !== 'other');
+        }
+
+        function confirmExpenseDate() {
+            const value = parseFloat(document.getElementById('pendingExpenseValue').value);
+            const description = document.getElementById('pendingExpenseDesc').value;
+            let date;
+            
+            if (selectedExpenseDate === 'today') date = new Date();
+            else if (selectedExpenseDate === 'yesterday') { date = new Date(); date.setDate(date.getDate() - 1); }
+            else date = new Date(document.getElementById('expenseCustomDate').value);
+            
+            addExpense(value, description, date.toISOString());
+            closeModal('expenseDateModal');
+            showToast(`💸 Gasto de ${formatMoney(value)} registrado!`, 'expense');
+            document.getElementById('quickCommand').value = '';
+        }
+
+        function addExpense(value, description, dateISO) {
+            const db = getDB();
+            if (!db.expenses) db.expenses = [];
+            db.expenses.push({
+                id: Date.now().toString(),
+                value: value,
+                description: description,
+                date: dateISO
+            });
+            saveDB(db);
+        }
+
+        function deleteExpense(id) {
+            if (!confirm('Excluir este gasto?')) return;
+            const db = getDB();
+            db.expenses = (db.expenses || []).filter(e => e.id !== id);
+            saveDB(db);
+            showToast('🗑️ Gasto excluído', 'success');
         }
 
         function showClientDetail(name) {
             const client = getClient(name);
             if (!client) return;
-            
             document.getElementById('editOldName').value = name;
             document.getElementById('editName').value = name;
             document.getElementById('editPhone').value = client.phone || '';
             document.getElementById('editWhatsApp').value = client.whatsapp || '';
             document.getElementById('editNotes').value = client.notes || '';
-            
             document.getElementById('editModal').classList.add('active');
         }
 
         function saveClient() {
             const oldName = document.getElementById('editOldName').value;
             const newName = document.getElementById('editName').value.trim().toLowerCase();
-            
-            if (!newName) {
-                showToast('Nome é obrigatório', 'error');
-                return;
-            }
-
+            if (!newName) { showToast('Nome é obrigatório', 'error'); return; }
             const db = getDB();
-            
-            if (oldName !== newName && db[newName]) {
-                showToast('Nome já existe', 'error');
-                return;
-            }
-
-            const client = db[oldName];
+            if (oldName !== newName && db.clients[newName]) { showToast('Nome já existe', 'error'); return; }
+            const client = db.clients[oldName];
             client.phone = document.getElementById('editPhone').value.trim();
             client.whatsapp = document.getElementById('editWhatsApp').value.trim();
             client.notes = document.getElementById('editNotes').value.trim();
-
-            if (oldName !== newName) {
-                db[newName] = client;
-                delete db[oldName];
-            }
-
+            if (oldName !== newName) { db.clients[newName] = client; delete db.clients[oldName]; }
             saveDB(db);
             closeModal('editModal');
             showToast('✅ Salvo', 'success');
@@ -1434,9 +972,8 @@
         function deleteCurrentClient() {
             const name = document.getElementById('editOldName').value;
             if (!confirm(`Excluir ${capitalize(name)}?`)) return;
-            
             const db = getDB();
-            delete db[name];
+            delete db.clients[name];
             saveDB(db);
             closeModal('editModal');
             showToast('🗑️ Excluído', 'success');
@@ -1450,27 +987,11 @@
             updateUI();
         }
 
-        function closeModal(id) {
-            document.getElementById(id).classList.remove('active');
-        }
-
-        function showSettings() {
-            document.getElementById('settingsModal').classList.add('active');
-        }
-
-        function setCommand(cmd) {
-            const input = document.getElementById('quickCommand');
-            input.value = cmd;
-            input.focus();
-        }
-
-        function filterClients() {
-            updateClientList(document.getElementById('clientSearch').value);
-        }
-
-        function toggleTheme() {
-            document.documentElement.toggleAttribute('data-theme');
-        }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+        function showSettings() { document.getElementById('settingsModal').classList.add('active'); }
+        function setCommand(cmd) { const input = document.getElementById('quickCommand'); input.value = cmd; input.focus(); }
+        function filterClients() { updateClientList(document.getElementById('clientSearch').value); }
+        function toggleTheme() { document.documentElement.toggleAttribute('data-theme'); updateThemeButton(); }
 
         function showToast(msg, type = 'success') {
             const toast = document.getElementById('toast');
@@ -1480,32 +1001,16 @@
         }
 
         function formatMoney(v) {
-            return new Intl.NumberFormat('pt-BR', {
-                style: 'currency',
-                currency: 'BRL'
-            }).format(v);
+            return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
         }
 
         function formatDate(d) {
-            return new Date(d).toLocaleDateString('pt-BR', {
-                day: '2-digit',
-                month: 'short'
-            });
+            return new Date(d).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
         }
 
-        function capitalize(s) {
-            return s.charAt(0).toUpperCase() + s.slice(1);
-        }
-
-        function isToday(dateStr) {
-            return dateStr === new Date().toLocaleDateString('pt-BR');
-        }
-
-        function isYesterday(dateStr) {
-            const y = new Date();
-            y.setDate(y.getDate() - 1);
-            return dateStr === y.toLocaleDateString('pt-BR');
-        }
+        function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+        function isToday(dateStr) { return dateStr === new Date().toLocaleDateString('pt-BR'); }
+        function isYesterday(dateStr) { const y = new Date(); y.setDate(y.getDate() - 1); return dateStr === y.toLocaleDateString('pt-BR'); }
 
         function exportData() {
             const data = JSON.stringify(getDB(), null, 2);
@@ -1521,19 +1026,18 @@
         function importData(input) {
             const file = input.files[0];
             if (!file) return;
-
             const reader = new FileReader();
             reader.onload = (e) => {
                 try {
                     const data = JSON.parse(e.target.result);
-                    if (confirm(`Importar ${Object.keys(data).length} clientes?`)) {
+                    const clientCount = Object.keys(data.clients || {}).length;
+                    const expenseCount = (data.expenses || []).length;
+                    if (confirm(`Importar ${clientCount} clientes e ${expenseCount} gastos?`)) {
                         saveDB(data);
                         showToast('✅ Importado', 'success');
                         closeModal('settingsModal');
                     }
-                } catch {
-                    showToast('❌ Arquivo inválido', 'error');
-                }
+                } catch { showToast('❌ Arquivo inválido', 'error'); }
             };
             reader.readAsText(file);
         }
@@ -1541,7 +1045,6 @@
         function confirmReset() {
             if (!confirm('⚠️ Apagar TUDO?')) return;
             if (!confirm('Tem certeza?')) return;
-            
             localStorage.removeItem(DB_KEY);
             updateUI();
             showToast('🗑️ Apagado', 'success');
@@ -1551,9 +1054,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             updateUI();
             document.querySelectorAll('.modal-overlay').forEach(m => {
-                m.addEventListener('click', (e) => {
-                    if (e.target === m) m.classList.remove('active');
-                });
+                m.addEventListener('click', (e) => { if (e.target === m) m.classList.remove('active'); });
             });
         });
     </script>
